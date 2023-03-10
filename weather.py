@@ -128,9 +128,9 @@ for h in hourly:
 if rain_change is not None:
     preface = f"{rain_desc} expected at {p.number_to_words(rain_change)}"
     if int(hour) > 13:
-        suffix = " hundred hours"
+        suffix = "hundred hours"
     else:
-        suffix = " o clock"
+        suffix = "o clock"
     rain_prediction = f"{preface} {suffix}."
 """
 """
