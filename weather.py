@@ -31,7 +31,8 @@ def get_date():
 def get_sunset(time):
     # time = datetime.datetime.fromtimestamp(timestamp)
     time = datetime.datetime.strptime(time, "%H:%M")
-    hour = p.number_to_words(time.strftime('%I'))
+    BST = 1  # make zero again when BST ends
+    hour = p.number_to_words((int(time.strftime('%I')) + BST) % 12)
     minute = int(time.strftime('%M'))
     if minute == 0:
         minute = "oh clock"
