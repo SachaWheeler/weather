@@ -133,8 +133,6 @@ if rain_change is not None:
     else:
         suffix = "o clock"
     rain_prediction = f"{preface} {suffix}."
-"""
-"""
 
 announcement = f"""
 Good {day_stage}. It is {date_str}.
