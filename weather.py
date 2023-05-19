@@ -10,7 +10,6 @@ from licence import API_KEY
 
 
 #  https://www.weatherapi.com/api-explorer.aspx#forecast
-
 def degToCompass(num):
     val=int((num/22.5)+.5)
     arr=["North","North North East","North East","East North East",
