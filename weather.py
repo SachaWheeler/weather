@@ -60,7 +60,6 @@ else:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 # pprint.pprint(data)
-
 p = inflect.engine()
 
 current = data['current']
