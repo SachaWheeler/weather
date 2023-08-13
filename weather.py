@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 import pprint
 import inflect
 import datetime
@@ -18,6 +19,7 @@ def degToCompass(num):
             "West","West North West","North West","North North West"]
     return arr[(val % 16)]
 
+time.sleep(10)
 now = datetime.datetime.now()
 def get_date():
     # date_str = datetime.datetime.now().strftime('%A, %-d  %B')
