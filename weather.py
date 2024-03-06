@@ -5,9 +5,10 @@ import pprint
 import inflect
 import datetime
 from num2words import num2words
-from TTS.api import TTS
+# from TTS.api import TTS
 import os.path
 from licence import API_KEY
+import subprocess
 
 
 #  https://www.weatherapi.com/api-explorer.aspx#forecast
@@ -86,7 +87,7 @@ conditions = current['condition']['text']
 today = data['forecast']['forecastday'][0]
 high = p.number_to_words(f"{today['day']['maxtemp_c']:0.0f}")
 low = p.number_to_words(f"{today['day']['mintemp_c']:0.0f}")
-temp_forecast = f"a high of {high} and a low of {low} degrees Celcius"
+temp_forecast = f"A high of {high} and a low of {low} degrees Celcius"
 
 sunset = get_sunset(today['astro']['sunset'].split(" ")[0])
 sunset_time = datetime.datetime.strptime(today['astro']['sunset'], "%I:%M %p")
@@ -94,7 +95,7 @@ sunrise_time = datetime.datetime.strptime(today['astro']['sunrise'], "%I:%M %p")
 
 secs_of_day = sunset_time - sunrise_time
 hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
-print(hours_of_day, mins_of_day)
+# print(hours_of_day, mins_of_day)
 hours_of_day_str = p.number_to_words(hours_of_day) + " hours"
 if int(mins_of_day) > 0:
     hours_of_day_str += f" and {p.number_to_words(mins_of_day)} minutes"
@@ -124,7 +125,7 @@ for h in hourly:
     # print(hour, desc, pop)
     if int(hour) == 23: # only look at today
         break
-    print(rain_change, h['time_epoch'], h['time'])
+    # print(rain_change, h['time_epoch'], h['time'])
 
 if rain_change is not None:
     preface = f"{rain_desc} expected at {p.number_to_words(rain_change)}"
@@ -141,15 +142,26 @@ Currently {conditions} with wind speed of {wind_speed} meters per second from th
 {rain_prediction}
 {temp_forecast}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-""".replace('minus', 'negative')
+""".replace('minus', 'negative').replace('\n', ' ')
 
 print(announcement)
 
-model_name = TTS.list_models()[0]
-tts = TTS(model_name)
-tts.tts_to_file(text=announcement,
-        speaker=tts.speakers[0],
-        language=tts.languages[0],
-        file_path="weather.wav")
+# model_name = TTS().list_models()[0]
+# tts = TTS(model_name)
+# print(tts)
+# tts.tts_to_file(text=announcement,
+        # speaker=tts.speakers[0],
+        # language=tts.languages[0],
+        # file_path="weather.wav")
+host = 'happy.local'
+user = 'happy'
+passwd = 'happy'
+cmd = 'say -v Samantha'
+command = f"ssh {user}@{host} {cmd} '{announcement}'"
 
-
+subprocess.Popen(
+        command,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+        ).communicate()
