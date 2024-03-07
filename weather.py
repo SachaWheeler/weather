@@ -48,19 +48,23 @@ def get_sunset(time):
 API_DOMAIN = "http://api.weatherapi.com/v1/forecast.json"
 API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
 
+"""
 json_file = "data.json"
 if os.path.exists(json_file):
     print("reading")
     f = open(json_file)
     data = json.load(f)
 else:
-    print("fetching")
-    response = requests.get(API_URL)
-    data = json.loads(response.text)
-    # pprint.pprint(data)
+"""
+# print("fetching")
+response = requests.get(API_URL)
+data = json.loads(response.text)
+# pprint.pprint(data)
 
-    with open(json_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+"""
+with open(json_file, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=4)
+"""
 
 # pprint.pprint(data)
 p = inflect.engine()
@@ -146,22 +150,15 @@ Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 
 print(announcement)
 
-# model_name = TTS().list_models()[0]
-# tts = TTS(model_name)
-# print(tts)
-# tts.tts_to_file(text=announcement,
-        # speaker=tts.speakers[0],
-        # language=tts.languages[0],
-        # file_path="weather.wav")
-host = 'happy.local'
-user = 'happy'
-passwd = 'happy'
-cmd = 'say -v Samantha'
-command = f"ssh {user}@{host} {cmd} '{announcement}'"
+# host = 'happy.local'
+# user = 'happy'
+# passwd = 'happy'
+# cmd = 'say -v Samantha'
+# command = f"ssh {user}@{host} {cmd} '{announcement}'"
 
-subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-        ).communicate()
+# subprocess.Popen(
+        # command,
+        # shell=True,
+        # stdout=subprocess.PIPE,
+        # stderr=subprocess.PIPE
+        # ).communicate()
