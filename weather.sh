@@ -8,6 +8,6 @@ PASSWD='happy'
 announcement=$(python3 /home/sacha/work/weather/weather.py)
 
 ssh $USER@$HOST<<END_SSH
-        say -v Samantha '$announcement'
+        say -v Fiona '$announcement'
 END_SSH
 
