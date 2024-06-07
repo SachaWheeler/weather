@@ -150,15 +150,3 @@ Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 
 print(announcement)
 
-# host = 'happy.local'
-# user = 'happy'
-# passwd = 'happy'
-# cmd = 'say -v Samantha'
-# command = f"ssh {user}@{host} {cmd} '{announcement}'"
-
-# subprocess.Popen(
-        # command,
-        # shell=True,
-        # stdout=subprocess.PIPE,
-        # stderr=subprocess.PIPE
-        # ).communicate()
