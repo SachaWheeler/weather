@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from __future__ import print_function
 import requests
 import json
 import time
@@ -5,11 +7,85 @@ import pprint
 import inflect
 import datetime
 from num2words import num2words
-# from TTS.api import TTS
+
 import os.path
 from licence import API_KEY
 import subprocess
 
+# from __future__ import print_function
+import pickle
+import pytz
+import re
+
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+
+# If modifying these SCOPES, delete the file token.pickle.
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+
+def authenticate_google_calendar():
+    """Shows basic usage of the Google Calendar API.
+    Prints the start and name of the next 10 events on the user's calendar.
+    """
+    creds = None
+    # The file token.pickle stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first time.
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    service = build('calendar', 'v3', credentials=creds)
+    return service
+
+def get_today_upcoming_events(service):
+    # Define the time zone for London, England
+    london_tz = pytz.timezone('Europe/London')
+
+    # Get the current time in London, England
+    now = datetime.datetime.now(london_tz).isoformat()
+
+    # Calculate the end of the day in London, England
+    end_of_day = (datetime.datetime.now(london_tz) + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+
+    # print('Getting today\'s upcoming events')
+    events_result = service.events().list(calendarId='primary', timeMin=now,
+                                          timeMax=end_of_day, singleEvents=True,
+                                          orderBy='startTime').execute()
+    events = events_result.get('items', [])
+
+    if not events:
+        return None, None
+
+    time_str = None
+    for event in events:
+        start = event['start'].get('dateTime', event['start'].get('date'))
+        time_str = extract_time(start)
+        event_name = event['summary']
+        # print(f'Time: {time_str}, Event: {event_name}')
+        break
+    if time_str:
+        return get_time(time_str), event_name
+    else:
+        return None, None
+
+def extract_time(start):
+    """Extract the time from the datetime string."""
+    # Using regular expression to find the time part
+    match = re.search(r'T(\d{2}:\d{2}):\d{2}', start)
+    if match:
+        return match.group(1)
+    return start
+
+############################
 
 #  https://www.weatherapi.com/api-explorer.aspx#forecast
 def degToCompass(num):
@@ -30,7 +106,7 @@ def get_date():
     month = now.strftime('%B')
     return f"{hour} o clock on {day} the {date} of {month}"
 
-def get_sunset(time):
+def get_time(time):
     # time = datetime.datetime.fromtimestamp(timestamp)
     time = datetime.datetime.strptime(time, "%H:%M")
     BST = 0  # 1  # make zero again when BST ends
@@ -48,25 +124,10 @@ def get_sunset(time):
 API_DOMAIN = "http://api.weatherapi.com/v1/forecast.json"
 API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
 
-"""
-json_file = "data.json"
-if os.path.exists(json_file):
-    print("reading")
-    f = open(json_file)
-    data = json.load(f)
-else:
-"""
-# print("fetching")
 response = requests.get(API_URL)
 data = json.loads(response.text)
 # pprint.pprint(data)
 
-"""
-with open(json_file, 'w', encoding='utf-8') as f:
-    json.dump(data, f, ensure_ascii=False, indent=4)
-"""
-
-# pprint.pprint(data)
 p = inflect.engine()
 
 current = data['current']
@@ -93,7 +154,7 @@ high = p.number_to_words(f"{today['day']['maxtemp_c']:0.0f}")
 low = p.number_to_words(f"{today['day']['mintemp_c']:0.0f}")
 temp_forecast = f"A high of {high} and a low of {low} degrees Celcius"
 
-sunset = get_sunset(today['astro']['sunset'].split(" ")[0])
+sunset = get_time(today['astro']['sunset'].split(" ")[0])
 sunset_time = datetime.datetime.strptime(today['astro']['sunset'], "%I:%M %p")
 sunrise_time = datetime.datetime.strptime(today['astro']['sunrise'], "%I:%M %p")
 
@@ -139,6 +200,11 @@ if rain_change is not None:
         suffix = "o clock"
     rain_prediction = f"{preface} {suffix}."
 
+# get appointments
+service = authenticate_google_calendar()
+appointment_time, appointment = get_today_upcoming_events(service)
+
+
 announcement = f"""
 Good {day_stage}. It is {date_str}.
 It is {current_temp}.
@@ -146,7 +212,12 @@ Currently {conditions} with wind speed of {wind_speed} meters per second from th
 {rain_prediction}
 {temp_forecast}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-""".replace('minus', 'negative').replace('\n', ' ')
+"""
+
+if appointment_time:
+    announcement += f"Your next appoointment is {appointment} at {appointment_time}."
+
+announcement.replace('minus', 'negative').replace('\n', ' ')
 
 print(announcement)
 
