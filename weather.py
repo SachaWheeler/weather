@@ -61,20 +61,22 @@ def get_today_upcoming_events(service):
                                           orderBy='startTime').execute()
     events = events_result.get('items', [])
 
+    # print(events, len(events))
     if not events:
-        return None, None
+        return ""
 
-    time_str = None
+    events_str = None
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
-        time_str = extract_time(start)
+        time_str = get_time(extract_time(start), True)
         event_name = event['summary']
         # print(f'Time: {time_str}, Event: {event_name}')
-        break
-    if time_str:
-        return get_time(time_str, True), event_name
-    else:
-        return None, None
+        if events_str == None:
+            events_str = f"Your next appointment is {event_name} at {time_str}"
+        else:
+            events_str += f", followed by {event_name} at {time_str}"
+            break
+    return events_str if events_str else ""
 
 def extract_time(start):
     """Extract the time from the datetime string."""
@@ -205,7 +207,7 @@ if rain_change is not None:
 
 # get appointments
 service = authenticate_google_calendar()
-appointment_time, appointment = get_today_upcoming_events(service)
+appointments = get_today_upcoming_events(service)
 
 
 announcement = f"""
@@ -215,10 +217,8 @@ Currently {conditions} with wind speed of {wind_speed} meters per second from th
 {rain_prediction}
 {temp_forecast}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
+{appointments}.
 """
-
-if appointment_time:
-    announcement += f"Your next appointment is {appointment} at {appointment_time}."
 
 announcement.replace('minus', 'negative').replace('\n', ' ')
 
