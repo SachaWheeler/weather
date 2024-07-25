@@ -12,7 +12,6 @@ import os.path
 from licence import API_KEY
 import subprocess
 
-# from __future__ import print_function
 import pickle
 import pytz
 import re
@@ -73,7 +72,7 @@ def get_today_upcoming_events(service):
         # print(f'Time: {time_str}, Event: {event_name}')
         break
     if time_str:
-        return get_time(time_str), event_name
+        return get_time(time_str, True), event_name
     else:
         return None, None
 
@@ -106,11 +105,15 @@ def get_date():
     month = now.strftime('%B')
     return f"{hour} o clock on {day} the {date} of {month}"
 
-def get_time(time):
+def get_time(time, twentyfour_hour=False):
     # time = datetime.datetime.fromtimestamp(timestamp)
     time = datetime.datetime.strptime(time, "%H:%M")
     BST = 0  # 1  # make zero again when BST ends
-    hour = p.number_to_words((int(time.strftime('%I')) + BST) % 12)
+    if twentyfour_hour:
+        full_hour = (int(time.strftime('%I')) + BST)
+    else:
+        full_hour = (int(time.strftime('%I')) + BST) % 12
+    hour = p.number_to_words(full_hour)
     minute = int(time.strftime('%M'))
     if minute == 0:
         minute = "oh clock"
@@ -215,7 +218,7 @@ Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 """
 
 if appointment_time:
-    announcement += f"Your next appoointment is {appointment} at {appointment_time}."
+    announcement += f"Your next appointment is {appointment} at {appointment_time}."
 
 announcement.replace('minus', 'negative').replace('\n', ' ')
 
