@@ -4,3 +4,4 @@ data.json
 licence.py
 weather.log
 credentials.json
+token.pickle
