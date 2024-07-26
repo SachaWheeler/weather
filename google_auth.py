@@ -30,24 +30,26 @@ def get_today_upcoming_events(service):
     # Calculate the end of the day in London, England
     end_of_day = now.replace(hour=23, minute=59, second=59, microsecond=999999)
     end_of_day_iso = end_of_day.isoformat()
-    print(end_of_day)
 
-    print('Getting today\'s upcoming events')
-    events_result = service.events().list(calendarId='primary', timeMin=now_iso,
+    # print('Getting today\'s upcoming events')
+    events_result = service.events().list(calendarId='sacha@sachawheeler.com', timeMin=now_iso,
                                           timeMax=end_of_day_iso, singleEvents=True,
                                           orderBy='startTime').execute()
-    print(events_result)
     events = events_result.get('items', [])
 
     if not events:
-        print('No upcoming events found.')
+        return None
+    upcoming_events = {}
     for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+        # print(start, event['summary'])
+        upcoming_events[start] = event['summary']
+    return upcoming_events
 
 def main():
     service = authenticate_google_calendar()
-    get_today_upcoming_events(service)
+    events = get_today_upcoming_events(service)
+    print(events)
 
 if __name__ == '__main__':
     main()

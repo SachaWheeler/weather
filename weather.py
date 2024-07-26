@@ -16,21 +16,6 @@ import re
 from google_auth import authenticate_google_calendar, get_today_upcoming_events
 
 
-"""
-    events_str = None
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        time_str = get_time(extract_time(start), True)
-        event_name = event['summary']
-        # print(f'Time: {time_str}, Event: {event_name}')
-        if events_str == None:
-            events_str = f"Your next appointment is {event_name} at {time_str}"
-        else:
-            events_str += f", followed by {event_name} at {time_str}"
-            break
-    return events_str if events_str else ""
-"""
-
 def extract_time(start):
     """Extract the time from the datetime string."""
     # Using regular expression to find the time part
@@ -38,8 +23,6 @@ def extract_time(start):
     if match:
         return match.group(1)
     return start
-
-############################
 
 #  https://www.weatherapi.com/api-explorer.aspx#forecast
 def degToCompass(num):
@@ -52,7 +35,7 @@ def degToCompass(num):
 
 time.sleep(10)
 now = datetime.datetime.now()
-def get_date():
+def get_date_str():
     # date_str = datetime.datetime.now().strftime('%A, %-d  %B')
     hour = num2words(now.strftime('%I'), lang="en")
     day = now.strftime('%A')
@@ -60,7 +43,7 @@ def get_date():
     month = now.strftime('%B')
     return f"{hour} o clock on {day} the {date} of {month}"
 
-def get_time(time, twentyfour_hour=False):
+def get_time_str(time, twentyfour_hour=False):
     # time = datetime.datetime.fromtimestamp(timestamp)
     time = datetime.datetime.strptime(time, "%H:%M")
     BST = 0  # 1  # make zero again when BST ends
@@ -89,7 +72,7 @@ data = json.loads(response.text)
 p = inflect.engine()
 
 current = data['current']
-date_str = get_date()
+date_str = get_date_str()
 current_hour = int(now.strftime('%H'))
 if current_hour < 12:
     day_stage = "morning"
@@ -112,7 +95,7 @@ high = p.number_to_words(f"{today['day']['maxtemp_c']:0.0f}")
 low = p.number_to_words(f"{today['day']['mintemp_c']:0.0f}")
 temp_forecast = f"A high of {high} and a low of {low} degrees Celcius"
 
-sunset = get_time(today['astro']['sunset'].split(" ")[0])
+sunset = get_time_str(today['astro']['sunset'].split(" ")[0])
 sunset_time = datetime.datetime.strptime(today['astro']['sunset'], "%I:%M %p")
 sunrise_time = datetime.datetime.strptime(today['astro']['sunrise'], "%I:%M %p")
 
@@ -156,22 +139,34 @@ if rain_change is not None:
         suffix = "hundred hours"
     else:
         suffix = "o clock"
-    rain_prediction = f"{preface} {suffix}."
+    rain_prediction = f"{preface} {suffix}"
 
 # get appointments
 service = authenticate_google_calendar()
-appointments = ""
 appointments = get_today_upcoming_events(service)
+
+events_str = ""
+for event_time, event_name in appointments.items():
+    time_str = get_time_str(extract_time(event_time), True)
+
+    if events_str == "":
+        events_str = f"Your next appointment is {event_name} at {time_str}"
+    else:
+        events_str += f", followed by {event_name} at {time_str}"
+        break
 
 
 announcement = f"""
-Good {day_stage}. It is {date_str}.
+Good {day_stage}.
+It is {date_str}.
 It is {current_temp}.
-Currently {conditions} with wind speed of {wind_speed} meters per second from the {wind_direction}.
-{rain_prediction}
+Currently {conditions} \
+        with wind speed of {wind_speed} meters per second \
+        from the {wind_direction}.
+{rain_prediction}.
 {temp_forecast}.
+{events_str}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-{appointments}.
 """
 
 announcement.replace('minus', 'negative').replace('\n', ' ')
