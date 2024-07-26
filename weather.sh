@@ -5,6 +5,7 @@ HOST='happy.local'
 USER='happy'
 PASSWD='happy'
 
+cd /home/sacha/work/weather/
 announcement=$(python3 /home/sacha/work/weather/weather.py)
 # echo "$announcement"
 
