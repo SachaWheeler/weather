@@ -8,6 +8,7 @@ import datetime
 from num2words import num2words
 import re
 import os.path
+import pytz
 
 from licence import API_KEY
 from google_auth import authenticate_google_calendar, get_today_upcoming_events
@@ -29,7 +30,8 @@ def degToCompass(num):
     return arr[(val % 16)]
 
 time.sleep(10)
-now = datetime.datetime.now()
+london_tz = pytz.timezone('Europe/London')
+now = datetime.datetime.now(london_tz)
 def get_date_str():
     hour = num2words(now.strftime('%I'), lang="en")
     day = now.strftime('%A')
