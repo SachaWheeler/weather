@@ -139,18 +139,21 @@ if rain_change is not None:
     rain_prediction = f"{preface} {suffix}"
 
 # get Calendar appointments
-service = authenticate_google_calendar()
-appointments = get_today_upcoming_events(service)
+try:
+    service = authenticate_google_calendar()
+    appointments = get_today_upcoming_events(service)
 
-events_str = ""
-for event_time, event_name in appointments.items():
-    time_str = get_time_str(extract_time(event_time), True)
+    events_str = ""
+    for event_time, event_name in appointments.items():
+        time_str = get_time_str(extract_time(event_time), True)
 
-    if events_str == "":
-        events_str = f"Your next appointment is {event_name} at {time_str}"
-    else:
-        events_str += f", followed by {event_name} at {time_str}"
-        break
+        if events_str == "":
+            events_str = f"Your next appointment is {event_name} at {time_str}"
+        else:
+            events_str += f", followed by {event_name} at {time_str}"
+            break
+except Exception as e:
+    pass
 
 
 announcement = f"""
