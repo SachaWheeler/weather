@@ -5,3 +5,4 @@ licence.py
 weather.log
 credentials.json
 token.pickle
+weather-and-calendar.json
