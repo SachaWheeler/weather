@@ -145,7 +145,7 @@ try:
     appointments = get_today_upcoming_events(service)
     """
     combined = None
-    for acct in ['JFT', 'SACHA']:
+    for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
         service, account = authenticate_google_calendar(acct)
         events = get_today_upcoming_events(service, account)
         if combined is None:
@@ -153,9 +153,8 @@ try:
         else:
             combined = {**combined, **events}
             sorted_combined_dict = dict(
-                    sorted(combined.items(),
-                        key=lambda item: datetime.datetime.fromisoformat(item[0]
-                    )
+                sorted(combined.items(),
+                    key=lambda item: datetime.datetime.fromisoformat(item[0])
                 )
             )
             combined = sorted_combined_dict
@@ -179,8 +178,8 @@ Good {day_stage}.
 It is {date_str}.
 It is {current_temp}.
 Currently {conditions} \
-        with wind speed of {wind_speed} meters per second \
-        from the {wind_direction}.
+with wind speed of {wind_speed} meters per second \
+from the {wind_direction}.
 {rain_prediction}.
 {temp_forecast}.
 {events_str}.

@@ -7,27 +7,24 @@ from googleapiclient.discovery import build
 
 # Define the scope for the Google Calendar API
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+ACCT_CREDENTIALS = {
+    "sacha@jftwines.com": "bibo-calendar.json",
+    "sacha@sachawheeler.com": "sacha-calendar.json",
+}
 
-# Path to the service account key file
-# SERVICE_ACCOUNT_FILE = 'weather-and-calendar.json'
-SERVICE_ACCOUNT_FILE = 'bibo-calendar.json'
-
-def authenticate_google_calendar(acct=None):
+def authenticate_google_calendar(account=None):
     """Authenticates with the Google Calendar API using a service account."""
-    if acct is None:
+    # print(account)
+    if account is None:
         return None
-    elif acct == "JFT":
-        SERVICE_ACCOUNT_FILE = "bibo-calendar.json"
-        ACCT = "sacha@jftwines.com"
-    elif acct == "SACHA":
-        SERVICE_ACCOUNT_FILE = 'sacha-calendar.json'
-        ACCT = "sacha@sachawheeler.com"
+    else:
+        SERVICE_ACCOUNT_FILE = ACCT_CREDENTIALS[account]
 
     credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
     service = build('calendar', 'v3', credentials=credentials)
-    return service, ACCT
+    return service, account
 
 def get_today_upcoming_events(service, account=None):
     # print(f"geting events for {account}")
@@ -61,7 +58,7 @@ def get_today_upcoming_events(service, account=None):
 
 def main():
     combined = None
-    for acct in ['JFT', 'SACHA']:
+    for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
         service, account = authenticate_google_calendar(acct)
         events = get_today_upcoming_events(service, account)
         if combined is None:
