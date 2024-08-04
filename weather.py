@@ -140,8 +140,26 @@ if rain_change is not None:
 
 # get Calendar appointments
 try:
+    """
     service = authenticate_google_calendar()
     appointments = get_today_upcoming_events(service)
+    """
+    combined = None
+    for acct in ['JFT', 'SACHA']:
+        service, account = authenticate_google_calendar(acct)
+        events = get_today_upcoming_events(service, account)
+        if combined is None:
+            combined = events
+        else:
+            combined = {**combined, **events}
+            sorted_combined_dict = dict(
+                    sorted(combined.items(),
+                        key=lambda item: datetime.datetime.fromisoformat(item[0]
+                    )
+                )
+            )
+            combined = sorted_combined_dict
+    appointments = combined
 
     events_str = ""
     for event_time, event_name in appointments.items():
