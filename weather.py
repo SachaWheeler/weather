@@ -171,15 +171,16 @@ try:
 
 
     date_events_str = ""
-    length = len(combined_date)
-    if length > 0:
-        date_events_str = f"Events today include "
-        count =0
-        for event_name in combined_date:
-            count += 1
-            date_events_str += f"{event_name}"
-            if length > count:
-                date_events_str += ", and "
+    if now.hour <= 9:
+        length = len(combined_date)
+        if length > 0:
+            date_events_str = f"Events today include "
+            count =0
+            for event_name in combined_date:
+                count += 1
+                date_events_str += f"{event_name}"
+                if length > count:
+                    date_events_str += ", and "
 
     time_events_str = ""
     for event_time, event_name in sorted_times.items():
@@ -190,6 +191,8 @@ try:
         else:
             time_events_str += f", followed by {event_name} at {time_str}"
             break
+    if time_events_str == "":
+        time_events_str = "You have no further appointments today"
 except Exception as e:
     # print(e)
     time_events_str = "Cannot get calendar appointments"
