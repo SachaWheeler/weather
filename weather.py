@@ -185,7 +185,7 @@ try:
 
     time_events_str = ""
     for event_time, event_name in sorted_times.items():
-        event_name = event_name.replace("\'"," ")
+        event_name = event_name.replace("\'","")
         time_str = get_time_str(extract_time(event_time), True)
 
         if time_events_str == "":
