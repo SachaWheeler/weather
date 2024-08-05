@@ -11,7 +11,8 @@ import os.path
 import pytz
 
 from licence import API_KEY
-from google_auth import authenticate_google_calendar, get_today_upcoming_events
+from google_auth import (authenticate_google_calendar, get_today_upcoming_events,
+        is_date_time, is_not_date_time)
 
 
 def extract_time(start):
@@ -138,38 +139,58 @@ if rain_change is not None:
         suffix = "o clock"
     rain_prediction = f"{preface} {suffix}"
 
+
 # get Calendar appointments
 try:
-    """
-    service = authenticate_google_calendar()
-    appointments = get_today_upcoming_events(service)
-    """
-    combined = None
+    count = 0
     for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
+        count += 1
         service, account = authenticate_google_calendar(acct)
         events = get_today_upcoming_events(service, account)
-        if combined is None:
-            combined = events
-        else:
-            combined = {**combined, **events}
-            sorted_combined_dict = dict(
-                sorted(combined.items(),
-                    key=lambda item: datetime.datetime.fromisoformat(item[0])
-                )
-            )
-            combined = sorted_combined_dict
-    appointments = combined
 
-    events_str = ""
-    for event_time, event_name in appointments.items():
+        time_events = dict(filter(is_date_time, events.items()))
+        date_events = dict(filter(is_not_date_time, events.items()))
+
+
+        if count == 1:
+            combined_date = list(date_events.values())
+            combined_time = time_events
+        else:
+            combined_date.extend(date_events.values())
+            combined_time = {**combined_time, **time_events}
+
+            sorted_times = dict(
+                    sorted(combined_time.items(),
+                        key=lambda item: datetime.datetime.fromisoformat(item[0]))
+            )
+
+
+    date_events_str = ""
+    length = len(combined_date)
+    if length > 0:
+        date_events_str = f"Events today include "
+        count =0
+        for event_name in combined_date:
+            event_name = event_name.replace("\'","")
+
+            count += 1
+            date_events_str += f"{event_name}"
+            if length > count:
+                date_events_str += " and "
+
+    time_events_str = ""
+    for event_time, event_name in sorted_times.items():
+        event_name = event_name.replace("\'"," ")
         time_str = get_time_str(extract_time(event_time), True)
 
-        if events_str == "":
-            events_str = f"Your next appointment is {event_name} at {time_str}"
+        if time_events_str == "":
+            time_events_str = f"Your next appointment is {event_name} at {time_str}"
         else:
-            events_str += f", followed by {event_name} at {time_str}"
+            time_events_str += f", followed by {event_name} at {time_str}"
             break
 except Exception as e:
+    # print(e)
+    time_events_str = "Cannot get calendar appointments"
     pass
 
 
@@ -182,7 +203,8 @@ with wind speed of {wind_speed} meters per second \
 from the {wind_direction}.
 {rain_prediction}.
 {temp_forecast}.
-{events_str}.
+{date_events_str}.
+{time_events_str}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 """
 

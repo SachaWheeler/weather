@@ -56,22 +56,42 @@ def get_today_upcoming_events(service, account=None):
         upcoming_events[start] = event['summary']
     return upcoming_events
 
+def is_date_time(pair):
+        key, value = pair
+        return "T" in key
+
+def is_not_date_time(pair):
+        return not is_date_time(pair)
+
 def main():
-    combined = None
+    count = 0
     for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
+        count += 1
         service, account = authenticate_google_calendar(acct)
         events = get_today_upcoming_events(service, account)
-        if combined is None:
-            combined = events
+        print(f"{events=}")
+        time_events = dict(filter(is_date_time, events.items()))
+        print(f"{time_events=}")
+        date_events = dict(filter(is_not_date_time, events.items()))
+        print(f"{date_events=}")
+
+        if count == 1:
+            combined_date = date_events
+            combined_time = time_events
         else:
-            combined = {**combined, **events}
-            sorted_combined_dict = dict(
-                    sorted(combined.items(),
-                        key=lambda item: datetime.datetime.fromisoformat(item[0])
-                )
+            combined_date = {**combined_date, **date_events}
+            combined_time = {**combined_time, **time_events}
+
+            sorted_dates = dict(
+                    sorted(combined_date.items(),
+                        key=lambda item: datetime.datetime.fromisoformat(item[0]))
             )
-            combined = sorted_combined_dict
-    print(combined)
+            sorted_times = dict(
+                    sorted(combined_time.items(),
+                        key=lambda item: datetime.datetime.fromisoformat(item[0]))
+            )
+    print(sorted_dates)
+    print(sorted_times)
 
 if __name__ == '__main__':
     main()
