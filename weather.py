@@ -176,16 +176,13 @@ try:
         date_events_str = f"Events today include "
         count =0
         for event_name in combined_date:
-            event_name = event_name.replace("\'","")
-
             count += 1
             date_events_str += f"{event_name}"
             if length > count:
-                date_events_str += " and "
+                date_events_str += ", and "
 
     time_events_str = ""
     for event_time, event_name in sorted_times.items():
-        event_name = event_name.replace("\'","")
         time_str = get_time_str(extract_time(event_time), True)
 
         if time_events_str == "":
@@ -213,7 +210,10 @@ from the {wind_direction}.
 Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 """
 
-announcement.replace('minus', 'negative').replace('\n', ' ')
+announcement = announcement.replace(
+        'minus', 'negative'
+    # ).replace( '\n', ' '
+    ).replace('\'', '')
 
 print(announcement)
 
