@@ -212,8 +212,9 @@ Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 
 announcement = announcement.replace(
         'minus', 'negative'
-    # ).replace( '\n', ' '
-    ).replace('\'', '')
+    ).replace( '\n.', ''
+    ).replace('\'', ''
+    ).lstrip().rstrip()
 
 print(announcement)
 
