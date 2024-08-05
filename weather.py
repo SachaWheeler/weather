@@ -157,7 +157,12 @@ try:
             combined_time = time_events
         else:
             combined_date.extend(date_events.values())
-            combined_time = {**combined_time, **time_events}
+
+            for time, event in time_events.items():
+                if time in combined_time:
+                    combined_time[time] += f", and {event}"
+                else:
+                    combined_time[time] = event
 
             sorted_times = dict(
                     sorted(combined_time.items(),
