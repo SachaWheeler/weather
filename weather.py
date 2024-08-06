@@ -16,41 +16,44 @@ time.sleep(10)
 # get Weather
 weather_data = get_weather_data()
 
+# Current
 current = weather_data['current']
-day_stage, date_str = get_greeting(current)
-current_temp, conditions = get_current_conditions(current)
-wind_speed, wind_direction = get_wind(current)
 
+day_stage, date_str                         = get_greeting(current)
+current_temp, conditions                    = get_current_conditions(current)
+wind_speed, wind_direction                  = get_wind(current)
+
+# Forecast
 today = weather_data['forecast']['forecastday'][0]
-temp_forecast = get_temp_forecast(today)
-time_to_sunrise, sunset, hours_of_day_str = get_sunset_hours(today['astro'])
-rain_prediction = get_rain_prediction(today['hour'])
 
+temp_forecast                               = get_temp_forecast(today)
+time_to_sunrise, sunset, hours_of_day_str   = get_sunset_hours(today['astro'])
+rain_prediction                             = get_rain_prediction(today['hour'])
 
-# get Calendar appointments
+# Calendar appointments
 gmail_accounts = ['sacha@jftwines.com', 'sacha@sachawheeler.com']
-date_events_str, time_events_str = get_calendar_events(gmail_accounts)
+date_events_str, time_events_str            = get_calendar_events(gmail_accounts)
 
-announcement = (
-    f"Good {day_stage}. "
-    f"It is {date_str}. "
-    f"{time_to_sunrise}. "
-    f"It is {current_temp}. "
-    f"Currently {conditions} "
-    f"with wind speed of {wind_speed} meters per second from the {wind_direction}. "
-    f"{rain_prediction}. "
-    f"{temp_forecast}. "
-    f"{date_events_str}. "
-    f"{time_events_str}. "
-    f"Sunset will be at {sunset} for {hours_of_day_str} of daylight. "
-    )
+# Output
+announcement = f"""
 
-announcement = announcement.replace(
-        'minus', 'negative'
-    ).replace( '\n.', ''
-    ).replace('\'', ''
-    ).replace(' . ', ' '
-    ).lstrip().rstrip()
+    Good {day_stage}.
+    It is {date_str}.
+    {time_to_sunrise}.
+    It is {current_temp}.
+    Currently {conditions} \
+    with wind speed of {wind_speed} meters per second from the {wind_direction}.
+    {rain_prediction}.
+    {temp_forecast}.
+    {date_events_str}.
+    {time_events_str}.
+    Sunset will be at {sunset} for {hours_of_day_str} of daylight.
+
+    """.replace( 'minus', 'negative'
+).replace( '    ', ''       # left padding
+).replace( '\n.', ''        # blank lines with '.'s
+).replace( '\'', ''         # remove things that might break the shell script "'"
+).lstrip().rstrip()         # lines at start and end
 
 print(announcement)
 

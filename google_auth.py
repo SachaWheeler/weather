@@ -122,7 +122,7 @@ def get_calendar_events(accounts=None):
             time_events_str += f", followed by {event_name} at {time_str}"
             break
     if time_events_str == "":
-        time_events_str = "You have no further appointments today"
+        time_events_str = "No further appointments today"
 
     return date_events_str, time_events_str
 
