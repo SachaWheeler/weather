@@ -2,7 +2,7 @@
 from __future__ import print_function
 import time
 
-from google_auth import (
+from utils import (
     authenticate_google_calendar, get_today_upcoming_events,
     is_date_time, is_not_date_time,
     get_calendar_events, get_time_str,
@@ -49,10 +49,10 @@ announcement = f"""
     {time_events_str}.
     Sunset will be at {sunset} for {hours_of_day_str} of daylight.
 
-    """.replace( 'minus', 'negative'
-).replace( '    ', ''       # left padding
-).replace( '\n.', ''        # blank lines with '.'s
-).replace( '\'', ''         # remove things that might break the shell script "'"
+""".replace('minus', 'negative'
+).replace('    ', ''       # left padding
+).replace('\n.', ''        # blank lines with '.'s
+).replace('\'', ''         # remove things that might break the shell script "'"
 ).lstrip().rstrip()         # lines at start and end
 
 print(announcement)
