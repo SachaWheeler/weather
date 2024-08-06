@@ -37,10 +37,7 @@ def authenticate_google_calendar(account=None):
 def get_today_upcoming_events(service, account=None):
     # print(f"geting events for {account}")
     # Define the time zone for London, England
-    london_tz = pytz.timezone('Europe/London')
 
-    # Get the current time in London, England
-    now = datetime.datetime.now(london_tz)
     now_iso = now.isoformat()
 
     # Calculate the end of the day in London, England
@@ -213,12 +210,30 @@ def get_sunset_hours(astro):
     sunset_time = datetime.datetime.strptime(astro['sunset'], "%I:%M %p")
     sunrise_time = datetime.datetime.strptime(astro['sunrise'], "%I:%M %p")
 
+    sunrise_str = ""
+    sunrise_today = sunrise_time.replace(year=now.year, month=now.month, day=now.day, tzinfo=london_tz)
+    if sunrise_today > now:  # sunrise has yet to happen
+        time_difference = sunrise_today - now
+
+        hours = time_difference.seconds // 3600
+        minutes = (time_difference.seconds // 60) % 60
+
+        sunrise_str = "Sunrise wil be in"
+        if hours > 0:
+            hour_s = "s" if hours > 1 else ""
+            sunrise_str += f" {num2words(hours)} hour{hour_s}"
+        if hours > 0 and minutes > 0:
+            sunrise_str += " and"
+        if minutes > 0:
+            minute_s = "s" if minutes > 1 else ""
+            sunrise_str += f" {num2words(minutes)} minute{minute_s}"
+
     secs_of_day = sunset_time - sunrise_time
     hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
     hours_of_day_str = num2words(hours_of_day, lang="en") + " hours"
     if int(mins_of_day) > 0:
         hours_of_day_str += f" and {num2words(mins_of_day, lang='en')} minutes"
-    return sunset, hours_of_day_str
+    return sunrise_str, sunset, hours_of_day_str
 
 def get_rain_prediction(hourly):
     current_pop = None

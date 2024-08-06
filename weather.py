@@ -23,7 +23,7 @@ wind_speed, wind_direction = get_wind(current)
 
 today = weather_data['forecast']['forecastday'][0]
 temp_forecast = get_temp_forecast(today)
-sunset, hours_of_day_str = get_sunset_hours(today['astro'])
+time_to_sunrise, sunset, hours_of_day_str = get_sunset_hours(today['astro'])
 rain_prediction = get_rain_prediction(today['hour'])
 
 
@@ -34,6 +34,7 @@ date_events_str, time_events_str = get_calendar_events(gmail_accounts)
 announcement = (
     f"Good {day_stage}. "
     f"It is {date_str}. "
+    f"{time_to_sunrise}. "
     f"It is {current_temp}. "
     f"Currently {conditions} "
     f"with wind speed of {wind_speed} meters per second from the {wind_direction}. "
@@ -48,6 +49,7 @@ announcement = announcement.replace(
         'minus', 'negative'
     ).replace( '\n.', ''
     ).replace('\'', ''
+    ).replace(' . ', ' '
     ).lstrip().rstrip()
 
 print(announcement)
