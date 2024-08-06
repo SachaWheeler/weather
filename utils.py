@@ -244,7 +244,7 @@ def get_rain_prediction(hourly):
         # figure out when the rain might start or stop
 
         hour = datetime.datetime.fromtimestamp(h['time_epoch']).strftime('%H')
-        if hour < now.strftime('%I'):
+        if hour < now.strftime('%H'):
             continue
         # print(hour)
         desc = h['condition']['text']
