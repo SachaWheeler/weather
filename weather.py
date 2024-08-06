@@ -141,63 +141,57 @@ if rain_change is not None:
 
 
 # get Calendar appointments
-try:
-    count = 0
-    for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
-        count += 1
-        service, account = authenticate_google_calendar(acct)
-        events = get_today_upcoming_events(service, account)
+count = 0
+for acct in ['sacha@jftwines.com', 'sacha@sachawheeler.com']:
+    # print(acct)
+    count += 1
+    service, account = authenticate_google_calendar(acct)
+    events = get_today_upcoming_events(service, account)
 
-        time_events = dict(filter(is_date_time, events.items()))
-        date_events = dict(filter(is_not_date_time, events.items()))
+    time_events = dict(filter(is_date_time, events.items())) if events else {}
+    date_events = dict(filter(is_not_date_time, events.items())) if events else {}
+
+    if count == 1:
+        combined_date = list(date_events.values())
+        combined_time = time_events
+    else:
+        combined_date.extend(date_events.values())
+
+        for time, event in time_events.items():
+            if time in combined_time:
+                combined_time[time] += f", and {event}"
+            else:
+                combined_time[time] = event
+
+        sorted_times = dict(
+                sorted(combined_time.items(),
+                    key=lambda item: datetime.datetime.fromisoformat(item[0]))
+        )
 
 
-        if count == 1:
-            combined_date = list(date_events.values())
-            combined_time = time_events
-        else:
-            combined_date.extend(date_events.values())
+date_events_str = ""
+if now.hour <= 9:
+    length = len(combined_date)
+    if length > 0:
+        date_events_str = f"Events today include "
+        count =0
+        for event_name in combined_date:
+            count += 1
+            date_events_str += f"{event_name}"
+            if length > count:
+                date_events_str += ", and "
 
-            for time, event in time_events.items():
-                if time in combined_time:
-                    combined_time[time] += f", and {event}"
-                else:
-                    combined_time[time] = event
+time_events_str = ""
+for event_time, event_name in sorted_times.items():
+    time_str = get_time_str(extract_time(event_time), True)
 
-            sorted_times = dict(
-                    sorted(combined_time.items(),
-                        key=lambda item: datetime.datetime.fromisoformat(item[0]))
-            )
-
-
-    date_events_str = ""
-    if now.hour <= 9:
-        length = len(combined_date)
-        if length > 0:
-            date_events_str = f"Events today include "
-            count =0
-            for event_name in combined_date:
-                count += 1
-                date_events_str += f"{event_name}"
-                if length > count:
-                    date_events_str += ", and "
-
-    time_events_str = ""
-    for event_time, event_name in sorted_times.items():
-        time_str = get_time_str(extract_time(event_time), True)
-
-        if time_events_str == "":
-            time_events_str = f"Your next appointment is {event_name} at {time_str}"
-        else:
-            time_events_str += f", followed by {event_name} at {time_str}"
-            break
     if time_events_str == "":
-        time_events_str = "You have no further appointments today"
-except Exception as e:
-    # print(e)
-    time_events_str = "Cannot get calendar appointments"
-    pass
-
+        time_events_str = f"Your next appointment is {event_name} at {time_str}"
+    else:
+        time_events_str += f", followed by {event_name} at {time_str}"
+        break
+if time_events_str == "":
+    time_events_str = "You have no further appointments today"
 
 announcement = f"""
 Good {day_stage}.
