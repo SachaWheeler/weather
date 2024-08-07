@@ -27,7 +27,7 @@ wind_speed, wind_direction                  = get_wind(current)
 today = weather_data['forecast']['forecastday'][0]
 
 temp_forecast                               = get_temp_forecast(today)
-time_to_sunrise, sunset, hours_of_day_str   = get_sunset_hours(today['astro'])
+sunrise, sunset, hours_of_day_str   = get_sunset_hours(today['astro'])
 rain_prediction                             = get_rain_prediction(today['hour'])
 
 # Calendar appointments
@@ -39,7 +39,7 @@ announcement = f"""
 
     Good {day_stage}.
     It is {date_str}.
-    {time_to_sunrise}.
+    {sunrise}.
     It is {current_temp}.
     Currently {conditions} \
     with wind speed of {wind_speed} meters per second from the {wind_direction}.

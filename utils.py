@@ -198,9 +198,8 @@ def get_wind(current):
     return wind_speed, wind_direction
 
 def get_temp_forecast(forecast):
-    today = forecast
-    high = num2words(f"{today['day']['maxtemp_c']:0.0f}", lang="en")
-    low = num2words(f"{today['day']['mintemp_c']:0.0f}", lang="en")
+    high = num2words(f"{forecast['day']['maxtemp_c']:0.0f}", lang="en")
+    low = num2words(f"{forecast['day']['mintemp_c']:0.0f}", lang="en")
     temp_forecast = f"A high of {high} and a low of {low} degrees Celcius"
     return temp_forecast
 
@@ -209,7 +208,7 @@ def get_sunset_hours(astro):
     sunset_time = datetime.datetime.strptime(astro['sunset'], "%I:%M %p")
     sunrise_time = datetime.datetime.strptime(astro['sunrise'], "%I:%M %p")
 
-    sunrise_str = ""
+    sunrise = ""
     sunrise_today = sunrise_time.replace(year=now.year, month=now.month, day=now.day, tzinfo=london_tz)
     if sunrise_today > now:  # sunrise has yet to happen
         time_difference = sunrise_today - now
@@ -217,22 +216,22 @@ def get_sunset_hours(astro):
         hours = time_difference.seconds // 3600
         minutes = (time_difference.seconds // 60) % 60
 
-        sunrise_str = "Sunrise wil be in"
+        sunrise = "Sunrise wil be in"
         if hours > 0:
             hour_s = "s" if hours > 1 else ""
-            sunrise_str += f" {num2words(hours)} hour{hour_s}"
+            sunrise += f" {num2words(hours)} hour{hour_s}"
         if hours > 0 and minutes > 0:
-            sunrise_str += " and"
+            sunrise += " and"
         if minutes > 0:
             minute_s = "s" if minutes > 1 else ""
-            sunrise_str += f" {num2words(minutes)} minute{minute_s}"
+            sunrise += f" {num2words(minutes)} minute{minute_s}"
 
     secs_of_day = sunset_time - sunrise_time
     hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
     hours_of_day_str = num2words(hours_of_day, lang="en") + " hours"
     if int(mins_of_day) > 0:
         hours_of_day_str += f" and {num2words(mins_of_day, lang='en')} minutes"
-    return sunrise_str, sunset, hours_of_day_str
+    return sunrise, sunset, hours_of_day_str
 
 def get_rain_prediction(hourly):
     current_pop = None
