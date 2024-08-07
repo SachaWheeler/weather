@@ -27,7 +27,7 @@ wind_speed, wind_direction                  = get_wind(current)
 today = weather_data['forecast']['forecastday'][0]
 
 temp_forecast                               = get_temp_forecast(today)
-sunrise, sunset, hours_of_day_str   = get_sunset_hours(today['astro'])
+sunrise, sunset, hours_of_day_str           = get_sunset_hours(today['astro'])
 rain_prediction                             = get_rain_prediction(today['hour'])
 
 # Calendar appointments
