@@ -36,7 +36,6 @@ def authenticate_google_calendar(account=None):
 
 def get_today_upcoming_events(service, account=None):
     # print(f"geting events for {account}")
-    # Define the time zone for London, England
 
     now_iso = now.isoformat()
 
