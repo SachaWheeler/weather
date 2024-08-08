@@ -89,6 +89,7 @@ def get_calendar_events(accounts=None):
 
             for time, event in time_events.items():
                 if time in combined_time:
+                    # if there are two simultaneous events
                     combined_time[time] += f", and {event}"
                 else:
                     combined_time[time] = event
@@ -121,7 +122,7 @@ def get_calendar_events(accounts=None):
             time_events_str += f", followed by {event_name} at {time_str}"
             break
     if time_events_str == "":
-        time_events_str = "No further appointments today"
+        time_events_str = "No appointments"
 
     return date_events_str, time_events_str
 
@@ -132,7 +133,7 @@ def get_time_str(time, twentyfour_hour=False):
         full_hour = (int(time.strftime('%I')) + BST)
     else:
         full_hour = (int(time.strftime('%I')) + BST) % 12
-    # hour = p.number_to_words(full_hour)
+
     hour = num2words(full_hour, lang="en")
     minute = int(time.strftime('%M'))
     if minute == 0:
