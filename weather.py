@@ -41,7 +41,7 @@ season_str                                  = get_season()
 announcement = f"""
 
     Good {day_stage}.
-    It is {date_str} with {season_str}.
+    It is {date_str} {season_str}.
     {sunrise}.
     It is {current_temp}.
     Currently {conditions} \

@@ -121,7 +121,7 @@ def get_calendar_events(accounts=None):
         else:
             time_events_str += f", followed by {event_name} at {time_str}"
             break
-    if time_events_str == "":
+    if time_events_str == "" and now.hour <= 12:
         time_events_str = "No appointments"
 
     return date_events_str, time_events_str
@@ -293,7 +293,7 @@ def get_season():
             spring_start_next_year = get_season_dates(next_year)["Spring"]
             days_until_next_season = (spring_start_next_year - now).days
 
-            season_str = f"{num2words(days_until_next_season)} days till {next_season}"
+            season_str = f"with {num2words(days_until_next_season)} days till {next_season}"
     return season_str
 # Print the result
 
