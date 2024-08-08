@@ -8,7 +8,7 @@ from utils import (
     get_calendar_events, get_time_str,
     get_weather_data, get_greeting, get_current_conditions,
     get_wind, get_temp_forecast, get_sunset_hours,
-    get_rain_prediction,
+    get_rain_prediction, get_season
 )
 
 time.sleep(10)
@@ -34,11 +34,14 @@ rain_prediction                             = get_rain_prediction(today['hour'])
 gmail_accounts = ['sacha@jftwines.com', 'sacha@sachawheeler.com']
 date_events_str, time_events_str            = get_calendar_events(gmail_accounts)
 
+# Seasons
+season_str                                  = get_season()
+
 # Output
 announcement = f"""
 
     Good {day_stage}.
-    It is {date_str}.
+    It is {date_str} with {season_str}.
     {sunrise}.
     It is {current_temp}.
     Currently {conditions} \
