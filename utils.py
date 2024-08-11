@@ -69,7 +69,7 @@ def is_not_date_time(pair):
 
 def get_calendar_events(accounts=None):
     if accounts is None:
-        return None
+        return "arse"
 
     count = 0
     for acct in accounts:
@@ -267,7 +267,7 @@ def get_rain_prediction(hourly):
         else:
             suffix = "o clock"
         rain_prediction = f"{preface} {suffix}"
-        return rain_prediction
+    return rain_prediction
 
 def get_season():
     season_str = ""
