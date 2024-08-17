@@ -271,29 +271,27 @@ def get_rain_prediction(hourly):
 
 def get_season():
     season_str = ""
-    if now.hour <= 8:
-        year = now.year
-        season_dates = {
-            "Spring": datetime.datetime(year, 3, 20, tzinfo=london_tz),
-            "Summer": datetime.datetime(year, 6, 21, tzinfo=london_tz),
-            "Autumn": datetime.datetime(year, 9, 23, tzinfo=london_tz),
-            "Winter": datetime.datetime(year, 12, 21, tzinfo=london_tz)
-        }
+    year = now.year
+    season_dates = {
+        "Winter": datetime.datetime(year, 3, 20, tzinfo=london_tz),
+        "Spring": datetime.datetime(year, 6, 21, tzinfo=london_tz),
+        "Summer": datetime.datetime(year, 9, 23, tzinfo=london_tz),
+        "Autmnn": datetime.datetime(year, 12, 21, tzinfo=london_tz)
+    }
 
-        # Check if the next season is in the current or next year
-        for season, start_date in season_dates.items():
-            if start_date > now:
-                next_season = season
-                days_until_next_season = (start_date - now).days
-                break
-        else:
-            # If no more seasons are left this year, calculate days until the first season of next year
-            next_season = "Spring"
-            next_year = now.year + 1
-            spring_start_next_year = get_season_dates(next_year)["Spring"]
-            days_until_next_season = (spring_start_next_year - now).days
+    # Check if the next season is in the current or next year
+    for season, start_date in season_dates.items():
+        if start_date > now:
+            days_until_next_season = (start_date - now).days
+            break
+    else:
+        # If no more seasons are left this year, calculate days until the first season of next year
+        season = "Spring"
+        next_year = now.year + 1
+        spring_start_next_year = get_season_dates(next_year)["Spring"]
+        days_until_next_season = (spring_start_next_year - now).days
 
-            season_str = f"with {num2words(days_until_next_season)} days till {next_season}"
+    season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
     return season_str
 # Print the result
 
