@@ -280,9 +280,9 @@ def get_season():
     }
 
     # Check if the next season is in the current or next year
-    for season, start_date in season_dates.items():
-        if start_date > now:
-            days_until_next_season = (start_date - now).days
+    for season, end_date in season_dates.items():
+        if end_date > now:
+            days_until_next_season = (end_date - now).days
             break
     else:
         # If no more seasons are left this year, calculate days until the first season of next year
