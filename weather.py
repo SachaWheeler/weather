@@ -35,7 +35,8 @@ gmail_accounts = ['sacha@jftwines.com', 'sacha@sachawheeler.com']
 date_events_str, time_events_str            = get_calendar_events(gmail_accounts)
 
 # Seasons
-season_str                                  = get_season()
+# season_str                                  = get_season()
+season_str                                  = ""
 
 # Output
 announcement = f"""

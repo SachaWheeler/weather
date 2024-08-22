@@ -291,7 +291,10 @@ def get_season():
         spring_start_next_year = get_season_dates(next_year)["Spring"]
         days_until_next_season = (spring_start_next_year - now).days
 
-    season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
+    if days_until_next_season <= 1:
+        season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
+    else:
+        season_str = f"in {season}"
     return season_str
 # Print the result
 
