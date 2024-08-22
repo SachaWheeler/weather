@@ -19,6 +19,33 @@ ACCT_CREDENTIALS = {
 
 london_tz = pytz.timezone('Europe/London')
 now = datetime.datetime.now(london_tz)
+today = now.strftime('%Y-%m-%d')
+
+LAST_RUN_FILE = "./last_run_date.txt"
+
+
+def is_first_run_today():
+    if os.path.exists(LAST_RUN_FILE):
+        with open(LAST_RUN_FILE, 'r') as file:
+            last_run_date = file.read().strip()
+
+        # Check if today's date is different from the last run date
+        if today != last_run_date:
+            # print("This is the first run of the day.")
+            # Update the last run date
+            with open(LAST_RUN_FILE, 'w') as file:
+                file.write(today)
+            return True
+        else:
+            # print("This is not the first run of the day.")
+            return False
+    else:
+        # If the file doesn't exist, it's the first run ever
+        # print("This is the first run of the day.")
+        # Create the file and store today's date
+        with open(LAST_RUN_FILE, 'w') as file:
+            file.write(today)
+        return True
 
 def authenticate_google_calendar(account=None):
     """Authenticates with the Google Calendar API using a service account."""
@@ -270,6 +297,8 @@ def get_rain_prediction(hourly):
     return rain_prediction
 
 def get_season():
+    if not is_first_run_today():
+        return ""
     season_str = ""
     year = now.year
     season_dates = {
@@ -291,10 +320,7 @@ def get_season():
         spring_start_next_year = get_season_dates(next_year)["Spring"]
         days_until_next_season = (spring_start_next_year - now).days
 
-    if days_until_next_season <= 1:
-        season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
-    else:
-        season_str = f"in {season}"
+    season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
     return season_str
 # Print the result
 
