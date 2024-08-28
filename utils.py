@@ -238,7 +238,7 @@ def get_sunset_hours(astro):
 
     sunrise = ""
     sunrise_today = sunrise_time.replace(year=now.year, month=now.month, day=now.day, tzinfo=london_tz)
-    if sunrise_today > now:  # sunrise has yet to happen
+    if sunrise_today.time() > now.time():  # sunrise has yet to happen - use time as year is not set
         time_difference = sunrise_today - now
 
         hours = time_difference.seconds // 3600
@@ -246,13 +246,11 @@ def get_sunset_hours(astro):
 
         sunrise = "Sunrise wil be in"
         if hours > 0:
-            hour_s = "s" if hours > 1 else ""
-            sunrise += f" {num2words(hours)} hour{hour_s}"
+            sunrise += f" {num2words(hours)} hour{'s' if hours > 1 else ''}"
         if hours > 0 and minutes > 0:
             sunrise += " and"
         if minutes > 0:
-            minute_s = "s" if minutes > 1 else ""
-            sunrise += f" {num2words(minutes)} minute{minute_s}"
+            sunrise += f" {num2words(minutes)} minute{'s' if minutes > 1 else ''}"
 
     secs_of_day = sunset_time - sunrise_time
     hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
