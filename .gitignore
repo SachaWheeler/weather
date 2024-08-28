@@ -1,11 +1,6 @@
 __pycache__/
-weather.wav
-data.json
 licence.py
-weather.log
-credentials.json
-token.pickle
-weather-and-calendar.json
+example.json
 bibo-calendar.json
 sacha-calendar.json
 last_run_date.txt
