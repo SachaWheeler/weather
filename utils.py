@@ -221,14 +221,16 @@ def degToCompass(num):
 
 def get_wind(current):
     #  https://www.weatherapi.com/api-explorer.aspx#forecast
-    wind_speed = num2words(int(float(current['wind_kph']) * 1000 / (60 * 60)), lang="en")  # km/h ->
+    wind_speed = int(float(current['wind_kph']) * 1000 / (60 * 60))
+    wind_speed_str = num2words(wind_speed, lang="en")
     wind_direction = degToCompass(current['wind_degree'])
-    return wind_speed, wind_direction
+    return f" wind speed of {wind_speed_str} meter{'s' if wind_speed > 1 else ''} per second", wind_direction
 
 def get_temp_forecast(forecast):
     high = num2words(f"{forecast['day']['maxtemp_c']:0.0f}", lang="en")
-    low = num2words(f"{forecast['day']['mintemp_c']:0.0f}", lang="en")
-    temp_forecast = f"A high of {high} and a low of {low} degrees Celcius"
+    low = int(forecast['day']['mintemp_c'])
+    low_str = num2words(low, lang="en")
+    temp_forecast = f"A high of {high} and a low of {low_str} degree{'s' if low > 1 else ''} Celcius"
     return temp_forecast
 
 def get_sunset_hours(astro):
@@ -270,7 +272,7 @@ def get_rain_prediction(hourly):
         hour = datetime.datetime.fromtimestamp(h['time_epoch']).strftime('%H')
         if hour < now.strftime('%H'):
             continue
-        # print(hour)
+
         desc = h['condition']['text']
         pop = h['will_it_rain']
         if current_pop is None:
@@ -280,7 +282,7 @@ def get_rain_prediction(hourly):
                 # check if there's a rain change coming
                 rain_change = hour
                 rain_desc = desc
-        # print(hour, desc, pop)
+
         if int(hour) == 23: # only look at today
             break
 

@@ -44,8 +44,7 @@ announcement = f"""
     It is {date_str} {season_str}.
     {sunrise}.
     It is {current_temp}.
-    Currently {conditions} \
-    with wind speed of {wind_speed} meters per second from the {wind_direction}.
+    Currently {conditions} with {wind_speed} from the {wind_direction}.
     {rain_prediction}.
     {temp_forecast}.
     {date_events_str}.
