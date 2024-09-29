@@ -371,7 +371,7 @@ def get_season():
 
     # Handle if the season has ended
     if days_left <= 0:
-        return f"The season is over. Total duration: {total_days} days"
+        return f"{season} is over. Total duration: {total_days} days"
 
     return (f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
             f"or {numerator}/{denominator} of the way {progress} {season}, "
