@@ -374,12 +374,8 @@ def get_season():
         return f"{season} is over. Total duration: {total_days} days"
 
     return (f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
-            f"or {numerator}/{denominator} of the way {progress} {season}, "
+            f"or {numerator}/{denominator}{'s' if closest_numerator > 1 else '' } "
+            f"of the way {progress} {season}, "
             f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left")
-
-
-    season_str = f"with day{'s' if days_until_next_season != 1 else '' } left of {season}"
-    return season_str
-# Print the result
 
 
