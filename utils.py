@@ -5,6 +5,7 @@ import re
 import requests
 import pytz
 import json
+import time
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from num2words import num2words
@@ -172,19 +173,42 @@ def get_time_str(time, twentyfour_hour=False):
     string = f"{hour} {minute}"
     return string
 
+
 def extract_time(start):
     match = re.search(r'T(\d{2}:\d{2}):\d{2}', start)
     if match:
         return match.group(1)
     return start
 
+
+def is_file_outdated(file_path, max_age_minutes=20):
+    if not os.path.exists(file_path):
+        return True  # File doesn't exist, so it's outdated
+
+    # Get the file's last modification time
+    file_mtime = os.path.getmtime(file_path)
+
+    # Get the current time and compare it with the file's mtime
+    current_time = time.time()
+    max_age_seconds = max_age_minutes * 60
+    return current_time - file_mtime > max_age_seconds
+
+
 def get_weather_data():
     API_DOMAIN = "http://api.weatherapi.com/v1/forecast.json"
     API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
 
-    response = requests.get(API_URL)
-    data = json.loads(response.text)
-    return data
+    json_file_path = 'fetched_data.json'
+    if not os.path.exists(json_file_path) or is_file_outdated(json_file_path):
+        response = requests.get(API_URL)
+        json_data = json.loads(response.text)
+        with open(json_file_path, 'w') as f:
+            json.dump(json_data, f)
+    else:
+        with open(json_file_path, 'r') as f:
+            json_data = json.load(f)
+
+    return json_data
 
 def get_greeting(current):
     current_hour = int(now.strftime('%H'))
@@ -297,8 +321,10 @@ def get_rain_prediction(hourly):
     return rain_prediction
 
 def get_season():
+    """
     if not is_first_run_today():
         return ""
+    """
     season_str = ""
     year = now.year
     season_dates = {
@@ -320,7 +346,39 @@ def get_season():
         spring_start_next_year = get_season_dates(next_year)["Spring"]
         days_until_next_season = (spring_start_next_year - now).days
 
-    season_str = f"with {num2words(days_until_next_season)} day{'s' if days_until_next_season != 1 else '' } left of {season}"
+    total_days = 91
+
+    # Calculate days passed since the season started
+    days_passed = total_days - days_until_next_season
+
+    # Calculate proportion of days passed
+    proportion_passed = days_passed / total_days if total_days > 0 else 0
+
+    # Define fractions of the form n/d where n < d, and d ∈ {2, 3, 4, 5}
+    fractions = [(n, d) for d in range(2, 6) for n in range(1, d)]
+
+    # Calculate which fraction is closest to the proportion of days passed
+    closest_fraction = min(fractions, key=lambda frac: abs((frac[0] / frac[1]) - proportion_passed))
+
+    # Extract numerator and denominator of the closest fraction
+    closest_numerator, closest_denominator = closest_fraction
+    numerator = num2words(closest_numerator)
+    denominator = num2words(closest_denominator, lang="en", to="ordinal")
+
+    # Calculate days left in the season
+    days_left = total_days - days_passed
+    progress = "into" if closest_numerator / closest_denominator < 0.5 else "through"
+
+    # Handle if the season has ended
+    if days_left <= 0:
+        return f"The season is over. Total duration: {total_days} days"
+
+    return (f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
+            f"or {numerator}/{denominator} of the way {progress} {season}, "
+            f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left")
+
+
+    season_str = f"with day{'s' if days_until_next_season != 1 else '' } left of {season}"
     return season_str
 # Print the result
 
