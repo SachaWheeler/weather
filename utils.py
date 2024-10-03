@@ -1,6 +1,7 @@
 from __future__ import print_function
 import datetime
 import os
+import sys
 import re
 import requests
 import pytz
@@ -199,7 +200,7 @@ def get_weather_data():
     API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
 
     json_file_path = 'fetched_data.json'
-    if not os.path.exists(json_file_path) or is_file_outdated(json_file_path):
+    if not os.path.exists(json_file_path) or not is_file_outdated(json_file_path):
         response = requests.get(API_URL)
         json_data = json.loads(response.text)
         with open(json_file_path, 'w') as f:
@@ -348,14 +349,11 @@ def get_season():
 
     total_days = 91
 
-    # Calculate days passed since the season started
     days_passed = total_days - days_until_next_season
-
-    # Calculate proportion of days passed
     proportion_passed = days_passed / total_days if total_days > 0 else 0
 
     # Define fractions of the form n/d where n < d, and d ∈ {2, 3, 4, 5}
-    fractions = [(n, d) for d in range(2, 6) for n in range(1, d)]
+    fractions = [(n, d) for d in range(2, 9) for n in range(1, d)]
 
     # Calculate which fraction is closest to the proportion of days passed
     closest_fraction = min(fractions, key=lambda frac: abs((frac[0] / frac[1]) - proportion_passed))
@@ -363,7 +361,7 @@ def get_season():
     # Extract numerator and denominator of the closest fraction
     closest_numerator, closest_denominator = closest_fraction
     numerator = num2words(closest_numerator)
-    denominator = num2words(closest_denominator, lang="en", to="ordinal")
+    denominator = "half" if closest_denominator == 2 else num2words(closest_denominator, lang="en", to="ordinal")
 
     # Calculate days left in the season
     days_left = total_days - days_passed
@@ -374,7 +372,7 @@ def get_season():
         return f"{season} is over. Total duration: {total_days} days"
 
     return (f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
-            f"or {numerator}/{denominator}{'s' if closest_numerator > 1 else '' } "
+            f"or {numerator} {denominator}{'s' if closest_numerator > 1 else '' } "
             f"of the way {progress} {season}, "
             f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left")
 
