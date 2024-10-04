@@ -200,7 +200,7 @@ def get_weather_data():
     API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
 
     json_file_path = 'fetched_data.json'
-    if not os.path.exists(json_file_path) or not is_file_outdated(json_file_path):
+    if is_file_outdated(json_file_path):
         response = requests.get(API_URL)
         json_data = json.loads(response.text)
         with open(json_file_path, 'w') as f:
