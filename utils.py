@@ -1,5 +1,6 @@
 from __future__ import print_function
 import datetime
+from dateutil import parser
 import os
 import sys
 import re
@@ -33,18 +34,14 @@ def is_first_run_today():
 
         # Check if today's date is different from the last run date
         if today != last_run_date:
-            # print("This is the first run of the day.")
             # Update the last run date
             with open(LAST_RUN_FILE, 'w') as file:
                 file.write(today)
             return True
         else:
-            # print("This is not the first run of the day.")
             return False
     else:
         # If the file doesn't exist, it's the first run ever
-        # print("This is the first run of the day.")
-        # Create the file and store today's date
         with open(LAST_RUN_FILE, 'w') as file:
             file.write(today)
         return True
@@ -64,8 +61,6 @@ def authenticate_google_calendar(account=None):
     return service, account
 
 def get_today_upcoming_events(service, account=None):
-    # print(f"geting events for {account}")
-
     now_iso = now.isoformat()
 
     # Calculate the end of the day in London, England
@@ -125,7 +120,8 @@ def get_calendar_events(accounts=None):
 
             sorted_times = dict(
                     sorted(combined_time.items(),
-                        key=lambda item: datetime.datetime.fromisoformat(item[0]))
+                        # key=lambda item: datetime.datetime.fromisoformat(item[0]))
+                        key=lambda item: parser.isoparse(item[0]))
             )
 
 
