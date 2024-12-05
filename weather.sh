@@ -1,12 +1,12 @@
 #!/bin/sh
 
-. /home/sacha/.virtualenvs/sacha/bin/activate
+. /new-home/sacha/.virtualenvs/sacha/bin/activate
 HOST='happy.local'
 USER='happy'
 PASSWD='happy'
 
-cd /home/sacha/work/weather/
-announcement=$(python3 /home/sacha/work/weather/weather.py)
+cd /work/weather/
+announcement=$(python3 /work/weather/weather.py)
 # echo "$announcement"
 
 ssh $USER@$HOST<<END_SSH
