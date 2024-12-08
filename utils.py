@@ -8,6 +8,9 @@ import requests
 import pytz
 import json
 import time
+
+# pip install --upgrade google-api-python-client
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from num2words import num2words
