@@ -378,6 +378,7 @@ def get_season():
 
 
 def check_public_holiday():
+    # https://www.gov.uk/bank-holidays.json
     with open("bank-holidays.json", 'r') as file:
         data = json.load(file)
 
