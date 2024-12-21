@@ -331,7 +331,8 @@ def get_season():
         "Winter": datetime.datetime(year, 3, 20, tzinfo=london_tz),
         "Spring": datetime.datetime(year, 6, 21, tzinfo=london_tz),
         "Summer": datetime.datetime(year, 9, 23, tzinfo=london_tz),
-        "Autmnn": datetime.datetime(year, 12, 21, tzinfo=london_tz)
+        "Autmnn": datetime.datetime(year, 12, 21, tzinfo=london_tz),
+        "Winter": datetime.datetime(year + 1, 3, 20, tzinfo=london_tz),
     }
 
     # Check if the next season is in the current or next year
