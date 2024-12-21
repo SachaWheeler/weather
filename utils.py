@@ -1,5 +1,5 @@
 from __future__ import print_function
-import datetime
+from datetime import datetime, timedelta
 from dateutil import parser
 import os
 import sys
@@ -24,7 +24,7 @@ ACCT_CREDENTIALS = {
 }
 
 london_tz = pytz.timezone('Europe/London')
-now = datetime.datetime.now(london_tz)
+now = datetime.now(london_tz)
 today = now.strftime('%Y-%m-%d')
 
 LAST_RUN_FILE = "./last_run_date.txt"
@@ -155,7 +155,7 @@ def get_calendar_events(accounts=None):
     return date_events_str, time_events_str
 
 def get_time_str(time, twentyfour_hour=False):
-    time = datetime.datetime.strptime(time, "%H:%M")
+    time = datetime.strptime(time, "%H:%M")
     BST = 0  # 1  # make zero again when BST ends
     if twentyfour_hour:
         full_hour = (int(time.strftime('%I')) + BST)
@@ -259,8 +259,8 @@ def get_temp_forecast(forecast):
 
 def get_sunset_hours(astro):
     sunset = get_time_str(astro['sunset'].split(" ")[0])
-    sunset_time = datetime.datetime.strptime(astro['sunset'], "%I:%M %p")
-    sunrise_time = datetime.datetime.strptime(astro['sunrise'], "%I:%M %p")
+    sunset_time = datetime.strptime(astro['sunset'], "%I:%M %p")
+    sunrise_time = datetime.strptime(astro['sunrise'], "%I:%M %p")
 
     sunrise = ""
     sunrise_today = sunrise_time.replace(year=now.year, month=now.month, day=now.day, tzinfo=london_tz)
@@ -293,7 +293,7 @@ def get_rain_prediction(hourly):
     for h in hourly:
         # figure out when the rain might start or stop
 
-        hour = datetime.datetime.fromtimestamp(h['time_epoch']).strftime('%H')
+        hour = datetime.fromtimestamp(h['time_epoch']).strftime('%H')
         if hour < now.strftime('%H'):
             continue
 
@@ -328,11 +328,11 @@ def get_season():
     season_str = ""
     year = now.year
     season_dates = {
-        "Winter": datetime.datetime(year, 3, 20, tzinfo=london_tz),
-        "Spring": datetime.datetime(year, 6, 21, tzinfo=london_tz),
-        "Summer": datetime.datetime(year, 9, 23, tzinfo=london_tz),
-        "Autmnn": datetime.datetime(year, 12, 21, tzinfo=london_tz),
-        "Winter": datetime.datetime(year + 1, 3, 20, tzinfo=london_tz),
+        "Winter": datetime(year, 3, 20, tzinfo=london_tz),
+        "Spring": datetime(year, 6, 21, tzinfo=london_tz),
+        "Summer": datetime(year, 9, 23, tzinfo=london_tz),
+        "Autmnn": datetime(year, 12, 21, tzinfo=london_tz),
+        "Winter": datetime(year + 1, 3, 20, tzinfo=london_tz),
     }
 
     # Check if the next season is in the current or next year
@@ -375,5 +375,45 @@ def get_season():
             f"or {numerator} {denominator}{'s' if closest_numerator > 1 else '' } "
             f"of the way {progress} {season}, "
             f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left")
+
+
+def check_public_holiday():
+    with open("bank-holidays.json", 'r') as file:
+        data = json.load(file)
+
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    next_week = today + timedelta(days=7)
+
+    days = {today: "Today",
+            tomorrow: "Tomorrow"
+            }
+
+    # Assuming we check only 'england-and-wales', modify for other regions if needed
+    holidays = data.get('england-and-wales', {}).get('events', [])
+
+    found_holiday = False
+    for holiday in holidays:
+        holiday_date = datetime.strptime(holiday['date'], "%Y-%m-%d").date()
+        if today <= holiday_date <= next_week:
+            # print(f"Upcoming Public Holiday: {holiday['title']} on {holiday['date']}")
+            found_holiday = True
+            break
+
+    if found_holiday:
+        if holiday_date in days:
+            day = days[holiday_date]
+        else:
+            day = holiday_date.strftime('%A')
+
+        return f"{day} is {holiday['title']}"
+    else:
+        return ""
+
+
+
+
+
+
 
 
