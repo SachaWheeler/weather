@@ -364,7 +364,7 @@ def season_progress():
     # print(f"Next Season: {next_season}")
     # print(f"Days Until Next Season: {days_until_next}")
 
-    total_days = days_passed + days_until_next
+    total_days = days_passed + days_until_next + 1
 
     # days_passed = total_days - days_until_next_season
     proportion_passed = days_passed / total_days if total_days > 0 else 0
