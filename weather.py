@@ -41,6 +41,8 @@ season_str                                  = season_progress()
 # Public holiday
 holiday_str                                 = check_public_holiday()
 
+# News - https://content.guardianapis.com/search?api-key=764a3153-29a8-4ce7-8c48-d7f33b05dca3
+
 # Output
 announcement = f"""
 
