@@ -1,5 +1,5 @@
 from __future__ import print_function
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from dateutil import parser
 import os
 import sys
@@ -320,40 +320,57 @@ def get_rain_prediction(hourly):
         rain_prediction = f"{preface} {suffix}"
     return rain_prediction
 
-def get_season():
-    """
-    if not is_first_run_today():
-        return ""
-    """
-    season_str = ""
-    year = now.year
-    season_dates = {
-        "Winter": datetime(year, 3, 20, tzinfo=london_tz),
-        "Spring": datetime(year, 6, 21, tzinfo=london_tz),
-        "Summer": datetime(year, 9, 23, tzinfo=london_tz),
-        "Autmnn": datetime(year, 12, 21, tzinfo=london_tz),
-        "Winter": datetime(year + 1, 3, 20, tzinfo=london_tz),
+
+def season_dates(year):
+    """Return the start dates of seasons for the given year."""
+    return {
+        'Spring': date(year, 3, 20),
+        'Summer': date(year, 6, 21),
+        'Autumn': date(year, 9, 23),
+        'Winter': date(year, 12, 21)
     }
 
-    # Check if the next season is in the current or next year
-    for season, end_date in season_dates.items():
-        if end_date > now:
-            days_until_next_season = (end_date - now).days
+def get_current_and_next_season():
+    today = datetime.now().date()
+    year = today.year
+    seasons = season_dates(year)
+    season_names = ['Spring', 'Summer', 'Autumn', 'Winter']
+
+    # Determine current season and next season
+    for i, season in enumerate(season_names):
+        if today < seasons[season]:
+            current_season = season_names[i - 1] if i > 0 else 'Winter'
+            current_start = seasons[current_season] if i > 0 else season_dates(year - 1)['Winter']
+            next_season = season
+            next_start = seasons[next_season]
             break
     else:
-        # If no more seasons are left this year, calculate days until the first season of next year
-        season = "Spring"
-        next_year = now.year + 1
-        spring_start_next_year = get_season_dates(next_year)["Spring"]
-        days_until_next_season = (spring_start_next_year - now).days
+        current_season = 'Winter'
+        current_start = seasons['Winter']
+        next_season = 'Spring'
+        next_start = season_dates(year + 1)['Spring']
 
-    total_days = 91
+    return current_season, current_start, next_season, next_start
 
-    days_passed = total_days - days_until_next_season
+def season_progress():
+    current_season, current_start, next_season, next_start = get_current_and_next_season()
+    today = datetime.now().date()
+
+    days_passed = (today - current_start).days
+    days_until_next = (next_start - today).days
+
+    # print(f"Current Season: {current_season}")
+    # print(f"Days Passed in Current Season: {days_passed}")
+    # print(f"Next Season: {next_season}")
+    # print(f"Days Until Next Season: {days_until_next}")
+
+    total_days = days_passed + days_until_next
+
+    # days_passed = total_days - days_until_next_season
     proportion_passed = days_passed / total_days if total_days > 0 else 0
 
     # Define fractions of the form n/d where n < d, and d ∈ {2, 3, 4, 5}
-    fractions = [(n, d) for d in range(2, 9) for n in range(1, d)]
+    fractions = [(n, d) for d in range(2, 11) for n in range(1, d)]
 
     # Calculate which fraction is closest to the proportion of days passed
     closest_fraction = min(fractions, key=lambda frac: abs((frac[0] / frac[1]) - proportion_passed))
@@ -369,11 +386,11 @@ def get_season():
 
     # Handle if the season has ended
     if days_left <= 0:
-        return f"{season} is over. Total duration: {total_days} days"
+        return f"{current_season} is over. Total duration: {total_days} days"
 
     return (f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
             f"or {numerator} {denominator}{'s' if closest_numerator > 1 else '' } "
-            f"of the way {progress} {season}, "
+            f"of the way {progress} {current_season}, "
             f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left")
 
 

@@ -8,11 +8,11 @@ from utils import (
     get_calendar_events, get_time_str,
     get_weather_data, get_greeting, get_current_conditions,
     get_wind, get_temp_forecast, get_sunset_hours,
-    get_rain_prediction, get_season,
-    check_public_holiday
+    get_rain_prediction,
+    check_public_holiday, season_progress
 )
 
-holiday_str                                 = check_public_holiday()
+season_str                              = season_progress()
 
-print(holiday_str)
+print(season_str)
 
