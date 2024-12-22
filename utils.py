@@ -356,15 +356,10 @@ def season_progress():
     current_season, current_start, next_season, next_start = get_current_and_next_season()
     today = datetime.now().date()
 
-    days_passed = (today - current_start).days
+    days_passed = (today - current_start).days + 1
     days_until_next = (next_start - today).days
 
-    # print(f"Current Season: {current_season}")
-    # print(f"Days Passed in Current Season: {days_passed}")
-    # print(f"Next Season: {next_season}")
-    # print(f"Days Until Next Season: {days_until_next}")
-
-    total_days = days_passed + days_until_next + 1
+    total_days = days_passed + days_until_next
 
     # days_passed = total_days - days_until_next_season
     proportion_passed = days_passed / total_days if total_days > 0 else 0
@@ -403,9 +398,10 @@ def check_public_holiday():
     tomorrow = today + timedelta(days=1)
     next_week = today + timedelta(days=7)
 
-    days = {today: "Today",
-            tomorrow: "Tomorrow"
-            }
+    days = {
+        today: "Today",
+        tomorrow: "Tomorrow"
+    }
 
     # Assuming we check only 'england-and-wales', modify for other regions if needed
     holidays = data.get('england-and-wales', {}).get('events', [])
