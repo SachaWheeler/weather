@@ -425,16 +425,30 @@ def check_public_holiday():
         return ""
 
 
-def pub_times():
-    day_of_week = now.weekday()  # Monday is 0, Sunday is 6
-    current_hour = now.hour
+def get_daily_events(file_path='calendar.txt'):
+    current_day = now.strftime('%A')  # e.g., Monday, Tuesday
+    current_hour = now.hour  # e.g., 11, 14
 
-    if (day_of_week == 6 and current_hour == 12) or \
-            (day_of_week in range(6) and current_hour == 11):  # Monday to Saturday
-        return "Pubs are open"
-    else:
-        return ""
+    matching_entries = []
 
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith('#'):  # Skip empty lines or comments
+                    continue
+
+                try:
+                    day, hour, label = line.split(',', 2)
+                    if day.strip() == current_day and int(hour.strip()) == current_hour:
+                        matching_entries.append(label.strip())
+                except ValueError:
+                    print(f"Invalid line format: {line}")
+
+    except FileNotFoundError:
+        print(f"Calendar file not found at {file_path}")
+
+    return ". ".join(matching_entries)
 
 
 

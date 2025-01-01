@@ -1,0 +1,10 @@
+# Pubs
+Monday,11,Pubs are open
+Tuesday,11,Pubs are open
+Wednesday,11,Pubs are open
+Thursday,11,Pubs are open
+Friday,11,Pubs are open
+Saturday,11,Pubs are open
+Sunday,12,Pubs are open
+
+
