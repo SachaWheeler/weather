@@ -9,7 +9,7 @@ from utils import (
     get_weather_data, get_greeting, get_current_conditions,
     get_wind, get_temp_forecast, get_sunset_hours,
     get_rain_prediction, season_progress,
-    check_public_holiday, get_schedule
+    check_public_holiday, get_daily_events
 )
 
 time.sleep(10)
