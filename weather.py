@@ -34,13 +34,13 @@ rain_prediction                             = get_rain_prediction(today['hour'])
 # Calendar appointments
 gmail_accounts = ['sacha@jftwines.com', 'sacha@sachawheeler.com']
 date_events_str, time_events_str            = get_calendar_events(gmail_accounts)
+daily_events_str                            = get_daily_events()
 
 # Seasons
 season_str                                  = season_progress()
 
 # Public holiday
 holiday_str                                 = check_public_holiday()
-timed_events_str                            = get_daily_events()
 
 # News - https://content.guardianapis.com/search?api-key=764a3153-29a8-4ce7-8c48-d7f33b05dca3
 
@@ -58,7 +58,7 @@ announcement = f"""
     {date_events_str}.
     {time_events_str}.
     Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-    {timed_events_str}.
+    {daily_events_str}.
 
 """.replace('minus', 'negative'
 ).replace('    ', ''        # left padding
