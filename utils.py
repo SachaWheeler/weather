@@ -425,6 +425,15 @@ def check_public_holiday():
         return ""
 
 
+def pub_times():
+    day_of_week = now.weekday()  # Monday is 0, Sunday is 6
+    current_hour = now.hour
+
+    if (day_of_week == 6 and current_hour == 12) or \
+            (day_of_week in range(6) and current_hour == 11):  # Monday to Saturday
+        return "Pubs are open"
+    else:
+        return ""
 
 
 
