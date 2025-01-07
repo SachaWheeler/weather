@@ -227,7 +227,7 @@ def get_greeting(current):
     return day_stage, date_str
 
 def get_current_conditions(current):
-    current_temp = f"{num2words(int(current['temp_c']), lang='en')} degrees"
+    current_temp = f"{num2words(int(current['temp_c']), lang='en')} degree{'' if int(current['temp_c']) == 1 else 's'}"
     if int(current['temp_c']) != int(current['feelslike_c']):
         current_temp += f" but feels like {num2words(int(current['feelslike_c']), lang='en')}"
 

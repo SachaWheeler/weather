@@ -7,4 +7,3 @@ Friday,11,Pubs are open
 Saturday,11,Pubs are open
 Sunday,12,Pubs are open
 
-
