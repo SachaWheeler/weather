@@ -7,3 +7,12 @@ Friday,11,Pubs are open
 Saturday,11,Pubs are open
 Sunday,12,Pubs are open
 
+# Exercise
+Monday,11,Situps
+Tuesday,11,bench press
+Wednesday,11,walk to to the shops
+Thursday,11,curls
+Friday,11,bench press reps
+Saturday,11,walk
+# Sunday,12,Pubs are open
+

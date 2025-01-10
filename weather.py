@@ -63,6 +63,7 @@ announcement = f"""
 """.replace('minus', 'negative'
 ).replace('    ', ''        # left padding
 ).replace('\n.', ''         # blank lines with '.'s
+).replace(' .', ''          # double '.'s
 ).replace('\'', ''          # remove things that might break the shell script "'"
 ).lstrip().rstrip()         # lines at start and end
 
