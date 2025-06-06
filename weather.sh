@@ -3,7 +3,7 @@
 . /home/sacha/.virtualenvs/sacha/bin/activate
 HOST='happy.local'
 USER='happy'
-PASSWD='happy'
+# PASSWD='happy'
 
 cd /work/weather/
 announcement=$(python3 /work/weather/weather.py)
