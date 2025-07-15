@@ -1,11 +1,11 @@
 #!/bin/sh
 
-. /home/sacha/.virtualenvs/sacha/bin/activate
+. /home/sacha/.virtualenvs/sacha2/bin/activate
 HOST='happy.local'
 USER='happy'
 # PASSWD='happy'
 
-cd /work/weather/
+# cd /work/weather/
 announcement=$(python3 /work/weather/weather.py)
 # echo "$announcement"
 
