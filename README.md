@@ -4,11 +4,11 @@ This script runs on the hour, every hour between 07:00 and 14:00 and lets me kno
 (piped though a text-to-speech engine on a machine connected to my Hi-fi):
 
 - the date
-- time
-- weather
-- temperature
-- rain prediction
-- hours of the day
+- the time
+- current weather conditions
+- current temperature
+- rain prediction with time
+- hours of daylight
 - progress through the season,
 - and my upcoming calendar events.
 
