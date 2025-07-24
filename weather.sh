@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /home/sacha/.virtualenvs/sacha2/bin/activate
+. /home/sacha/.virtualenvs/sacha/bin/activate
 HOST='happy.local'
 USER='happy'
 # PASSWD='happy'
