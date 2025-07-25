@@ -2,7 +2,6 @@ from __future__ import print_function
 from datetime import datetime, timedelta, date
 from dateutil import parser
 import os
-import sys
 import re
 import requests
 import pytz
@@ -145,7 +144,7 @@ def get_calendar_events(accounts=None):
     if now.hour <= 9:
         length = len(combined_date)
         if length > 0:
-            date_events_str = f"Events today include "
+            date_events_str = "Events today include "
             count = 0
             for event_name in combined_date:
                 count += 1
