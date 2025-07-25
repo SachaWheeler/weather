@@ -22,7 +22,7 @@ to keep me on track.
 
 ## Example Output
 
-This would be sent to a text-to-speech engine, which would read it aloud:
+This would be sent to a text-to-speech engine:
 > Good morning.
 > It is eight o clock on Friday the twenty-fifth of July.
 > We are thirty-five days, or three eighths of the way into Summer, with sixty days left.
