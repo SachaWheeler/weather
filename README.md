@@ -5,10 +5,10 @@ It uses a text-to-speech engine (connected to my Hi-fi) to inform me of importan
 ## Features
 
 At the top of every hour between 07:00 and 14:00, it provides a summary of:
-- the date & time
+- the day, date & time
 - current weather conditions & temperature
-- rain predictions (when it will start or end)
-- sunrise & sunset times and number of hours of daylight
+- rain predictions if appropriate (when it will start if it hasn't yet or end if it has)
+- sunrise time (if sunrise hasn't happened yet), sunset time & total hours of daylight
 - how far are we into the current season
 - any bank holidays or friends' birthdays in the next 7 days
 - if any of my colleagues are on holiday today (from their shared calendar)
