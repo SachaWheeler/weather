@@ -6,14 +6,12 @@ It uses a text-to-speech engine (connected to my Hi-fi) to inform me of importan
 
 At the top of every hour between 07:00 and 14:00, it provides a summary of:
 - the date and time
-- current weather conditions
-- current temperature
-- rain predictions
-- sunrise and sunset times
-- hours of daylight
+- current weather conditions and temperature
+- rain predictions (when it will start or end)
+- sunrise & sunset times and number of hours of daylight
 - how far are we into the current season
 - any bank holidays or friends' birthdays in the next 7 days
-- if any of my colleagues are on holiday (from their shared calendar)
+- if any of my colleagues are on holiday today (from their shared calendar)
 - if I have any meetings today and when
 - and my upcoming calendar events.
 
@@ -29,7 +27,7 @@ This would be sent to a text-to-speech engine, which would read it aloud:
 > It is eight o clock on Friday the twenty-fifth of July.
 > We are thirty-five days, or three eighths of the way into Summer, with sixty days left.
 > It is seventeen degrees.
-> Currently Partly Cloudy with  wind speed of one meter per second from the North North West.
+> Currently Partly Cloudy with wind speed of one meter per second from the North North West.
 > A high of twenty-six and a low of sixteen degrees Celcius.
 > Events today include Lizzies birthday.
 > Your next appointment is Dev stand-up at eight thirty, followed by Team lunch at one oh clock.
