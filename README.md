@@ -4,7 +4,7 @@ It uses a text-to-speech engine (connected to my Hi-fi) to inform me of importan
 
 ## Features
 
-At the top of every scheduled hour, it provides a summary of:
+At the top of every hour between 07:00 and 14:00, it provides a summary of:
 - the date and time
 - current weather conditions
 - current temperature
