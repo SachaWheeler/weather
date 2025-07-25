@@ -7,11 +7,11 @@ It uses a text-to-speech engine (connected to my Hi-fi) to inform me of importan
 At the top of every hour between 07:00 and 14:00, it provides a summary of:
 - the day, date & time
 - current weather conditions & temperature
-- rain predictions if appropriate (when it will start if it hasn't yet or end if it has)
-- sunrise time (if sunrise hasn't happened yet), sunset time & total hours of daylight
+- rain predictions if any (when it will start if it hasn't yet or end if it has)
+- sunrise time (if still to come), sunset time & total hours of daylight
 - how far are we into the current season
-- any bank holidays or friends' birthdays in the next 7 days
-- if any of my colleagues are on holiday today (from their shared calendar)
+- any public holidays or friends' birthdays in the next 7 days
+- if any of my colleagues are on holiday today (from a shared calendar)
 - my next 2 scheduled meetings today (if any) and when they are
 - and my upcoming calendar events for the day.
 
@@ -19,6 +19,13 @@ At the top of every hour between 07:00 and 14:00, it provides a summary of:
 
 I tend to get lost in my work in the morning, so this script serves as a gentle, informative assistant
 to keep me on track.
+
+## Requirements
+- Python 3.7+
+- Google Calendar & API key
+- [OpenWeatherMap API key](https://openweathermap.org/api)
+- [List of public holidays](https://www.gov.uk/bank-holidays.json)
+- A text-to-speech engine ('say' on a networked Mac)
 
 ## Example Output
 
