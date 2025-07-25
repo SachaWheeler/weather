@@ -5,8 +5,8 @@ It uses a text-to-speech engine (connected to my Hi-fi) to inform me of importan
 ## Features
 
 At the top of every hour between 07:00 and 14:00, it provides a summary of:
-- the date and time
-- current weather conditions and temperature
+- the date & time
+- current weather conditions & temperature
 - rain predictions (when it will start or end)
 - sunrise & sunset times and number of hours of daylight
 - how far are we into the current season
