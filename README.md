@@ -12,7 +12,7 @@ At the top of every hour between 07:00 and 14:00, it provides a summary of:
 - how far are we into the current season
 - any bank holidays or friends' birthdays in the next 7 days
 - if any of my colleagues are on holiday today (from their shared calendar)
-- my next 2 scheduled meetings today and when
+- my next 2 scheduled meetings today and at what time
 - and my upcoming calendar events.
 
 ## Motivation
