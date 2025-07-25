@@ -1,8 +1,10 @@
-# Weather
+## Weather - A Personal Assistant Script
 
-This script runs on the hour, every hour between 07:00 and 14:00 and lets me know
-(piped though a text-to-speech engine on a machine connected to my Hi-fi):
+It uses a text-to-speech engine (connected to my Hi-fi) to inform me of important daily details.
 
+## Features
+
+At the top of every scheduled hour, it provides a summary of:
 - the date and time
 - current weather conditions
 - current temperature
@@ -15,4 +17,11 @@ This script runs on the hour, every hour between 07:00 and 14:00 and lets me kno
 - if I have any meetings today and when
 - and my upcoming calendar events.
 
-I tend to get lost in my work in the morning, so this is a gentle and informative assistant.
+## Motivation
+
+I tend to get lost in my work in the morning, so this script serves as a gentle, informative assistant
+to keep me on track.
+
+
+## License
+This project is for personal use and is not under any specific license currently.
