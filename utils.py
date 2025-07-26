@@ -207,6 +207,13 @@ class Calendar:
         if timed_events_str == "" and self.now.hour <= 12:
             timed_events_str = "No appointments"
 
+        # Save the events to cache
+        cached_data = {
+            "date_events_str": all_day_events_str,
+            "time_events_str": timed_events_str,
+        }
+        self.save_to_cache(cached_data)
+
         return all_day_events_str, timed_events_str
 
     def extract_time(self, start):

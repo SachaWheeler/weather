@@ -11,3 +11,4 @@ output.txt
 test_output.txt
 calendar.txt
 weather_cache.json
+calendar_cache.json
