@@ -223,43 +223,6 @@ class Calendar:
         return start
 
 
-def get_time_str(time, twentyfour_hour=False):
-    time = datetime.strptime(time, "%H:%M")
-    BST = 0  # 1  # make zero again when BST ends
-    if twentyfour_hour:
-        full_hour = int(time.strftime("%I")) + BST
-    else:
-        full_hour = (int(time.strftime("%I")) + BST) % 12
-
-    hour = num2words(full_hour, lang="en")
-    minute = int(time.strftime("%M"))
-    if minute == 0:
-        minute = "oh clock"
-    elif minute < 10:
-        minute = " oh " + num2words(minute, lang="en")
-    else:
-        minute = num2words(minute, lang="en")
-    string = f"{hour} {minute}"
-    return string
-
-
-def get_greeting():
-    current_hour = int(now.strftime("%H"))
-    if current_hour < 12:
-        day_stage = "morning"
-    elif current_hour < 18:
-        day_stage = "afternoon"
-    else:
-        day_stage = "evening"
-
-    hour = num2words(now.strftime("%I"), lang="en")
-    day = now.strftime("%A")
-    date = num2words(now.strftime("%-d"), lang="en", to="ordinal")
-    month = now.strftime("%B")
-    date_str = f"{hour} o clock on {day} the {date} of {month}"
-    return day_stage, date_str
-
-
 # Weather class encapsulating all weather-related functionality
 class Weather:
     def __init__(
@@ -606,3 +569,40 @@ def get_daily_events(file_path="calendar.txt"):
         print(f"Calendar file not found at {file_path}")
 
     return ". ".join(matching_entries)
+
+def get_time_str(time, twentyfour_hour=False):
+    time = datetime.strptime(time, "%H:%M")
+    BST = 0  # 1  # make zero again when BST ends
+    if twentyfour_hour:
+        full_hour = int(time.strftime("%I")) + BST
+    else:
+        full_hour = (int(time.strftime("%I")) + BST) % 12
+
+    hour = num2words(full_hour, lang="en")
+    minute = int(time.strftime("%M"))
+    if minute == 0:
+        minute = "oh clock"
+    elif minute < 10:
+        minute = " oh " + num2words(minute, lang="en")
+    else:
+        minute = num2words(minute, lang="en")
+    string = f"{hour} {minute}"
+    return string
+
+
+def get_greeting():
+    current_hour = int(now.strftime("%H"))
+    if current_hour < 12:
+        day_stage = "morning"
+    elif current_hour < 18:
+        day_stage = "afternoon"
+    else:
+        day_stage = "evening"
+
+    hour = num2words(now.strftime("%I"), lang="en")
+    day = now.strftime("%A")
+    date = num2words(now.strftime("%-d"), lang="en", to="ordinal")
+    month = now.strftime("%B")
+    date_str = f"{hour} o clock on {day} the {date} of {month}"
+    return day_stage, date_str
+
