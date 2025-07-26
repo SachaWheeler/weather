@@ -54,7 +54,9 @@ class Calendar:
         last_modified = datetime.fromtimestamp(file_mtime, london_tz)
         expiry_time = last_modified + timedelta(hours=self.cache_expiry_hours)
 
-        return self.now > expiry_time  # Cache is outdated if the current time is past the expiry time
+        return (
+            self.now > expiry_time
+        )  # Cache is outdated if the current time is past the expiry time
 
     def load_cached_data(self):
         """Load data from the cache file."""
@@ -67,7 +69,6 @@ class Calendar:
         """Save data to the cache file."""
         with open(self.cache_file, "w") as file:
             json.dump(data, file)
-
 
     def is_first_run_today(self):
         if os.path.exists(LAST_RUN_FILE):
@@ -141,7 +142,9 @@ class Calendar:
         if not self.is_cache_outdated():
             # Load data from the cache
             cached_data = self.load_cached_data()
-            return cached_data.get("date_events_str", ""), cached_data.get("time_events_str", "")
+            return cached_data.get("date_events_str", ""), cached_data.get(
+                "time_events_str", ""
+            )
 
         if self.calendar_accounts is None:
             return "No accounts provided"
@@ -262,7 +265,12 @@ def get_greeting():
 
 # Weather class encapsulating all weather-related functionality
 class Weather:
-    def __init__(self, location="London", cache_file="weather_cache.json", cache_expiry_minutes=30):
+    def __init__(
+        self,
+        location="London",
+        cache_file="weather_cache.json",
+        cache_expiry_minutes=30,
+    ):
         self.location = location
         self.api_key = API_KEY
         self.weather_api_url = "http://api.weatherapi.com/v1/forecast.json"
@@ -280,7 +288,9 @@ class Weather:
         last_modified = datetime.fromtimestamp(file_mtime, london_tz)
         expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
-        return now > expiry_time  # Cache is outdated if the current time is past the expiry time
+        return (
+            now > expiry_time
+        )  # Cache is outdated if the current time is past the expiry time
 
     def load_cached_data(self):
         """Load data from the cache file."""

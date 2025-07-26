@@ -20,7 +20,10 @@ with open("config.json", "r") as file:
 
 # Initialize Weather and Calendar with configuration
 weather = Weather(location=config["weather_location"])
-calendar = Calendar(calendar_accounts=config["calendar_accounts"], timezone=pytz.timezone(config["timezone"]))
+calendar = Calendar(
+    calendar_accounts=config["calendar_accounts"],
+    timezone=pytz.timezone(config["timezone"]),
+)
 season = Season()
 
 # Get current time and date
