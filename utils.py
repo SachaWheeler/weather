@@ -504,3 +504,571 @@ def get_daily_events(file_path="calendar.txt"):
         print(f"Calendar file not found at {file_path}")
 
     return ". ".join(matching_entries)
+
+
+# OOP Classes
+
+class Weather:
+    """Class to handle all weather-related functionality."""
+    
+    def __init__(self):
+        self.london_tz = pytz.timezone("Europe/London")
+        self.now = datetime.now(self.london_tz)
+    
+    def get_weather_data(self):
+        """Fetch weather data from API or cached file."""
+        API_DOMAIN = "http://api.weatherapi.com/v1/forecast.json"
+        API_URL = f"{API_DOMAIN}?key={API_KEY}&q=London&days=1&aqi=no&alerts=no"
+
+        json_file_path = "fetched_data.json"
+        if self._is_file_outdated(json_file_path):
+            response = requests.get(API_URL)
+            json_data = json.loads(response.text)
+            with open(json_file_path, "w") as f:
+                json.dump(json_data, f)
+        else:
+            with open(json_file_path, "r") as f:
+                json_data = json.load(f)
+
+        return json_data
+    
+    def get_greeting(self, current):
+        """Get greeting and current date/time string."""
+        current_hour = int(self.now.strftime("%H"))
+        if current_hour < 12:
+            day_stage = "morning"
+        elif current_hour < 18:
+            day_stage = "afternoon"
+        else:
+            day_stage = "evening"
+
+        hour = num2words(self.now.strftime("%I"), lang="en")
+        day = self.now.strftime("%A")
+        date = num2words(self.now.strftime("%-d"), lang="en", to="ordinal")
+        month = self.now.strftime("%B")
+        date_str = f"{hour} o clock on {day} the {date} of {month}"
+        return day_stage, date_str
+
+    def get_current_conditions(self, current):
+        """Get current temperature and weather conditions."""
+        temp_c = int(current["temp_c"])
+        current_temp = f"{num2words(temp_c, lang='en')} degree{'' if temp_c == 1 else 's'}"
+        if int(current["temp_c"]) != int(current["feelslike_c"]):
+            current_temp += (
+                f" but feels like {num2words(int(current['feelslike_c']), lang='en')}"
+            )
+
+        conditions = current["condition"]["text"]
+        return current_temp, conditions
+
+    def get_wind(self, current):
+        """Get wind speed and direction."""
+        wind_speed = int(float(current["wind_kph"]) * 1000 / (60 * 60))
+        wind_speed_str = num2words(wind_speed, lang="en")
+        wind_direction = self._deg_to_compass(current["wind_degree"])
+        return (
+            f" wind speed of {wind_speed_str} meter{'s' if wind_speed > 1 else ''} per second",
+            wind_direction,
+        )
+
+    def get_temp_forecast(self, forecast):
+        """Get temperature forecast for the day."""
+        high = num2words(f"{forecast['day']['maxtemp_c']:0.0f}", lang="en")
+        low = int(forecast["day"]["mintemp_c"])
+        low_str = num2words(low, lang="en")
+        temp_forecast = f"A high of {high} and a low of {low_str} degree{'s' if low > 1 else ''} Celcius"
+        return temp_forecast
+
+    def get_sunset_hours(self, astro):
+        """Get sunrise/sunset information and daylight hours."""
+        sunset = self._get_time_str(astro["sunset"].split(" ")[0])
+        sunset_time = datetime.strptime(astro["sunset"], "%I:%M %p")
+        sunrise_time = datetime.strptime(astro["sunrise"], "%I:%M %p")
+
+        sunrise = ""
+        sunrise_today = sunrise_time.replace(
+            year=self.now.year, month=self.now.month, day=self.now.day, tzinfo=self.london_tz
+        )
+        if (
+            sunrise_today.time() > self.now.time()
+        ):  # sunrise has yet to happen - use time as year is not set
+            time_difference = sunrise_today - self.now
+
+            hours = time_difference.seconds // 3600
+            minutes = (time_difference.seconds // 60) % 60
+
+            sunrise = "Sunrise wil be in"
+            if hours > 0:
+                sunrise += f" {num2words(hours)} hour{'s' if hours > 1 else ''}"
+            if hours > 0 and minutes > 0:
+                sunrise += " and"
+            if minutes > 0:
+                sunrise += f" {num2words(minutes)} minute{'s' if minutes > 1 else ''}"
+
+        secs_of_day = sunset_time - sunrise_time
+        hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
+        hours_of_day_str = num2words(hours_of_day, lang="en") + " hours"
+        if int(mins_of_day) > 0:
+            hours_of_day_str += f" and {num2words(mins_of_day, lang='en')} minutes"
+        return sunrise, sunset, hours_of_day_str
+
+    def get_rain_prediction(self, hourly):
+        """Get rain prediction for the day."""
+        current_pop = None
+        rain_change = None
+        rain_desc = None
+        rain_prediction = ""
+        for h in hourly:
+            # figure out when the rain might start or stop
+
+            hour = datetime.fromtimestamp(h["time_epoch"]).strftime("%H")
+            if hour < self.now.strftime("%H"):
+                continue
+
+            desc = h["condition"]["text"]
+            pop = h["will_it_rain"]
+            if current_pop is None:
+                current_pop = pop
+            if rain_change is None:
+                if (current_pop == 0 and pop == 1) or (current_pop == 1 and pop == 0):
+                    # check if there's a rain change coming
+                    rain_change = hour
+                    rain_desc = desc
+
+            if int(hour) == 23:  # only look at today
+                break
+
+        # Rain
+        if rain_change is not None:
+            preface = f"{rain_desc} expected at {num2words(rain_change, lang='en')}"
+            if int(hour) > 13:
+                suffix = "hundred hours"
+            else:
+                suffix = "o clock"
+            rain_prediction = f"{preface} {suffix}"
+        return rain_prediction
+
+    def _is_file_outdated(self, file_path, max_age_minutes=20):
+        """Check if a file is outdated based on modification time."""
+        if not os.path.exists(file_path):
+            return True  # File doesn't exist, so it's outdated
+
+        # Get the file's last modification time
+        file_mtime = os.path.getmtime(file_path)
+
+        # Get the current time and compare it with the file's mtime
+        current_time = time.time()
+        max_age_seconds = max_age_minutes * 60
+        return current_time - file_mtime > max_age_seconds
+
+    def _deg_to_compass(self, num):
+        """Convert wind degrees to compass direction."""
+        val = int((num / 22.5) + 0.5)
+        arr = [
+            "North",
+            "North North East",
+            "North East",
+            "East North East",
+            "East",
+            "East South East",
+            "South East",
+            "South South East",
+            "South",
+            "South South West",
+            "South West",
+            "West South West",
+            "West",
+            "West North West",
+            "North West",
+            "North North West",
+        ]
+        return arr[(val % 16)]
+
+    def _get_time_str(self, time, twentyfour_hour=False):
+        """Convert time to human-readable string."""
+        time = datetime.strptime(time, "%H:%M")
+        BST = 0  # 1  # make zero again when BST ends
+        if twentyfour_hour:
+            full_hour = int(time.strftime("%I")) + BST
+        else:
+            full_hour = (int(time.strftime("%I")) + BST) % 12
+
+        hour = num2words(full_hour, lang="en")
+        minute = int(time.strftime("%M"))
+        if minute == 0:
+            minute = "oh clock"
+        elif minute < 10:
+            minute = " oh " + num2words(minute, lang="en")
+        else:
+            minute = num2words(minute, lang="en")
+        string = f"{hour} {minute}"
+        return string
+
+
+class Calendar:
+    """Class to handle all calendar-related functionality."""
+    
+    def __init__(self):
+        self.london_tz = pytz.timezone("Europe/London")
+        self.now = datetime.now(self.london_tz)
+        self.scopes = ["https://www.googleapis.com/auth/calendar.readonly"]
+        self.acct_credentials = {
+            "sacha@jftwines.com": "bibo-calendar.json",
+            "sacha@sachawheeler.com": "sacha-calendar.json",
+        }
+    
+    def authenticate_google_calendar(self, account=None):
+        """Authenticates with the Google Calendar API using a service account."""
+        if account is None:
+            return None
+        else:
+            SERVICE_ACCOUNT_FILE = self.acct_credentials[account]
+
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=self.scopes
+        )
+
+        service = build("calendar", "v3", credentials=credentials)
+        return service, account
+
+    def get_calendar_events(self, accounts=None):
+        """Get calendar events from multiple accounts."""
+        if accounts is None:
+            return "arse"
+
+        combined_date = []
+        combined_time = {}
+        
+        count = 0
+        for acct in accounts:
+            count += 1
+            service, account = self.authenticate_google_calendar(acct)
+            events = self._get_today_upcoming_events(service, account)
+
+            time_events = dict(filter(self._is_date_time, events.items())) if events else {}
+            date_events = dict(filter(self._is_not_date_time, events.items())) if events else {}
+
+            if count == 1:
+                combined_date = list(date_events.values()) if date_events else []
+                combined_time = time_events
+            else:
+                combined_date.extend(date_events.values())
+
+                for time, event in time_events.items():
+                    if time in combined_time:
+                        # if there are two simultaneous events
+                        combined_time[time] += f", and {event}"
+                    else:
+                        combined_time[time] = event
+
+        # Sort the combined times
+        sorted_times = dict(
+            sorted(
+                combined_time.items(),
+                key=lambda item: parser.isoparse(item[0]),
+            )
+        ) if combined_time else {}
+
+        date_events_str = ""
+        if self.now.hour <= 9:
+            length = len(combined_date)
+            if length > 0:
+                date_events_str = "Events today include "
+                count = 0
+                for event_name in combined_date:
+                    count += 1
+                    date_events_str += f"{event_name}"
+                    if length > count:
+                        date_events_str += ", and "
+
+        time_events_str = ""
+        for event_time, event_name in sorted_times.items():
+            time_str = self._get_time_str(self._extract_time(event_time), True)
+
+            if time_events_str == "":
+                time_events_str = f"Your next appointment is {event_name} at {time_str}"
+            else:
+                time_events_str += f", followed by {event_name} at {time_str}"
+                break
+        if time_events_str == "" and self.now.hour <= 12:
+            time_events_str = "No appointments"
+
+        return date_events_str, time_events_str
+
+    def get_daily_events(self, file_path="calendar.txt"):
+        """Get daily events from a text file."""
+        current_day = self.now.strftime("%A")  # e.g., Monday, Tuesday
+        current_hour = self.now.hour  # e.g., 11, 14
+
+        matching_entries = []
+
+        try:
+            with open(file_path, "r") as file:
+                for line in file:
+                    line = line.strip()
+                    if not line or line.startswith("#"):  # Skip empty lines or comments
+                        continue
+
+                    try:
+                        day, hour, label = line.split(",", 2)
+                        if day.strip() == current_day and int(hour.strip()) == current_hour:
+                            matching_entries.append(label.strip())
+                    except ValueError:
+                        print(f"Invalid line format: {line}")
+
+        except FileNotFoundError:
+            print(f"Calendar file not found at {file_path}")
+
+        return ". ".join(matching_entries)
+
+    def _get_today_upcoming_events(self, service, account=None):
+        """Get today's upcoming events from Google Calendar."""
+        now_iso = self.now.isoformat()
+
+        # Calculate the end of the day in London, England
+        end_of_day = self.now.replace(hour=23, minute=59, second=59, microsecond=999999)
+        end_of_day_iso = end_of_day.isoformat()
+
+        events_result = (
+            service.events()
+            .list(
+                calendarId=account,
+                timeMin=now_iso,
+                timeMax=end_of_day_iso,
+                singleEvents=True,
+                orderBy="startTime",
+            )
+            .execute()
+        )
+        events = events_result.get("items", [])
+
+        if not events:
+            return None
+        upcoming_events = {}
+        for event in events:
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            upcoming_events[start] = event["summary"]
+        return upcoming_events
+
+    def _is_date_time(self, pair):
+        """Check if event has time component."""
+        key, value = pair
+        return "T" in key
+
+    def _is_not_date_time(self, pair):
+        """Check if event does not have time component."""
+        return not self._is_date_time(pair)
+
+    def _get_time_str(self, time, twentyfour_hour=False):
+        """Convert time to human-readable string."""
+        time = datetime.strptime(time, "%H:%M")
+        BST = 0  # 1  # make zero again when BST ends
+        if twentyfour_hour:
+            full_hour = int(time.strftime("%I")) + BST
+        else:
+            full_hour = (int(time.strftime("%I")) + BST) % 12
+
+        hour = num2words(full_hour, lang="en")
+        minute = int(time.strftime("%M"))
+        if minute == 0:
+            minute = "oh clock"
+        elif minute < 10:
+            minute = " oh " + num2words(minute, lang="en")
+        else:
+            minute = num2words(minute, lang="en")
+        string = f"{hour} {minute}"
+        return string
+
+    def _extract_time(self, start):
+        """Extract time from datetime string."""
+        match = re.search(r"T(\d{2}:\d{2}):\d{2}", start)
+        if match:
+            return match.group(1)
+        return start
+
+
+class Announcement:
+    """Class to coordinate weather and calendar data and generate announcements."""
+    
+    def __init__(self):
+        self.london_tz = pytz.timezone("Europe/London")
+        self.now = datetime.now(self.london_tz)
+        self.today = self.now.strftime("%Y-%m-%d")
+    
+    def season_progress(self):
+        """Calculate and describe current season progress."""
+        current_season, current_start, next_season, next_start = (
+            self._get_current_and_next_season()
+        )
+        today = datetime.now().date()
+
+        days_passed = (today - current_start).days + 1
+        days_until_next = (next_start - today).days
+
+        total_days = days_passed + days_until_next
+
+        proportion_passed = days_passed / total_days if total_days > 0 else 0
+
+        # Define fractions of the form n/d where n < d, and d ∈ {2, 3, 4, 5}
+        fractions = [(n, d) for d in range(2, 11) for n in range(1, d)]
+
+        # Calculate which fraction is closest to the proportion of days passed
+        closest_fraction = min(
+            fractions, key=lambda frac: abs((frac[0] / frac[1]) - proportion_passed)
+        )
+
+        # Extract numerator and denominator of the closest fraction
+        closest_numerator, closest_denominator = closest_fraction
+        numerator = num2words(closest_numerator)
+        denominator = (
+            "half"
+            if closest_denominator == 2
+            else num2words(closest_denominator, lang="en", to="ordinal")
+        )
+
+        # Calculate days left in the season
+        days_left = total_days - days_passed
+        progress = "into" if closest_numerator / closest_denominator < 0.5 else "through"
+
+        # Handle if the season has ended
+        if days_left <= 0:
+            return f"{current_season} is over. Total duration: {total_days} days"
+
+        return (
+            f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else '' }, "
+            f"or {numerator} {denominator}{'s' if closest_numerator > 1 else '' } "
+            f"of the way {progress} {current_season}, "
+            f"with {num2words(days_left)} day{'s' if days_left != 1 else '' } left"
+        )
+
+    def check_public_holiday(self):
+        """Check for upcoming public holidays."""
+        with open("bank-holidays.json", "r") as file:
+            data = json.load(file)
+
+        today = datetime.now().date()
+        tomorrow = today + timedelta(days=1)
+        next_week = today + timedelta(days=7)
+
+        days = {today: "Today", tomorrow: "Tomorrow"}
+
+        # Assuming we check only 'england-and-wales', modify for other regions if needed
+        holidays = data.get("england-and-wales", {}).get("events", [])
+
+        found_holiday = False
+        for holiday in holidays:
+            holiday_date = datetime.strptime(holiday["date"], "%Y-%m-%d").date()
+            if today <= holiday_date <= next_week:
+                found_holiday = True
+                break
+
+        if found_holiday:
+            if holiday_date in days:
+                day = days[holiday_date]
+            else:
+                day = holiday_date.strftime("%A")
+
+            return f"{day} is {holiday['title']}"
+        else:
+            return ""
+
+    def generate_announcement(self, weather, calendar, gmail_accounts):
+        """Generate the complete announcement using Weather and Calendar instances."""
+        # Get Weather data
+        weather_data = weather.get_weather_data()
+        
+        # Current
+        current = weather_data["current"]
+        day_stage, date_str = weather.get_greeting(current)
+        current_temp, conditions = weather.get_current_conditions(current)
+        wind_speed, wind_direction = weather.get_wind(current)
+
+        # Forecast
+        today = weather_data["forecast"]["forecastday"][0]
+        temp_forecast = weather.get_temp_forecast(today)
+        sunrise, sunset, hours_of_day_str = weather.get_sunset_hours(today["astro"])
+        rain_prediction = weather.get_rain_prediction(today["hour"])
+
+        # Calendar appointments
+        date_events_str, time_events_str = calendar.get_calendar_events(gmail_accounts)
+        daily_events_str = calendar.get_daily_events()
+
+        # Seasons
+        season_str = self.season_progress()
+
+        # Public holiday
+        holiday_str = self.check_public_holiday()
+
+        # Output
+        announcement = (
+            f"""
+
+            Good {day_stage}.
+            It is {date_str}.
+            {season_str}. {holiday_str}.
+            {sunrise}.
+            It is {current_temp}.
+            Currently {conditions} with {wind_speed} from the {wind_direction}.
+            {rain_prediction}.
+            {temp_forecast}.
+            {date_events_str}.
+            {time_events_str}.
+            Sunset will be at {sunset} for {hours_of_day_str} of daylight.
+            {daily_events_str}.
+
+        """.replace("minus", "negative")
+            .replace(
+                "    ",
+                "",  # left padding
+            )
+            .replace(
+                "\n.",
+                "",  # blank lines with '.'s
+            )
+            .replace(
+                " .",
+                "",  # double '.'s
+            )
+            .replace(
+                "'",
+                "",  # remove things that might break the shell script "'"
+            )
+            .lstrip()
+            .rstrip()
+        )  # lines at start and end
+
+        return announcement
+
+    def _season_dates(self, year):
+        """Return the start dates of seasons for the given year."""
+        return {
+            "Spring": date(year, 3, 20),
+            "Summer": date(year, 6, 21),
+            "Autumn": date(year, 9, 23),
+            "Winter": date(year, 12, 21),
+        }
+
+    def _get_current_and_next_season(self):
+        """Get current and next season information."""
+        today = datetime.now().date()
+        year = today.year
+        seasons = self._season_dates(year)
+        season_names = ["Spring", "Summer", "Autumn", "Winter"]
+
+        # Determine current season and next season
+        for i, season in enumerate(season_names):
+            if today < seasons[season]:
+                current_season = season_names[i - 1] if i > 0 else "Winter"
+                current_start = (
+                    seasons[current_season] if i > 0 else self._season_dates(year - 1)["Winter"]
+                )
+                next_season = season
+                next_start = seasons[next_season]
+                break
+        else:
+            current_season = "Winter"
+            current_start = seasons["Winter"]
+            next_season = "Spring"
+            next_start = self._season_dates(year + 1)["Spring"]
+
+        return current_season, current_start, next_season, next_start
