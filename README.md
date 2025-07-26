@@ -103,6 +103,12 @@ To run the script, simply execute:
 ```bash
 python weather.py
 ```
+Make sure to have the required credentials and API keys set up as described in the requirements section.
+
+I run this from cron every hour between 07:00 and 14:00.
+```bash
+0 7-14 * * * /usr/bin/python3 /path/to/weather.py
+```
 
 ---
 
