@@ -3,7 +3,7 @@ from __future__ import print_function
 import time
 
 from utils import (
-    get_calendar_events,
+    Calendar,
     get_weather_data,
     get_greeting,
     get_current_conditions,
@@ -18,7 +18,11 @@ from utils import (
 
 time.sleep(10)
 
-# get Weather
+# Initialize Calendar object with required Gmail accounts
+gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
+calendar = Calendar(accounts=gmail_accounts)
+
+# Get Weather
 weather_data = get_weather_data()
 
 # Current
@@ -36,8 +40,7 @@ sunrise, sunset, hours_of_day_str = get_sunset_hours(today["astro"])
 rain_prediction = get_rain_prediction(today["hour"])
 
 # Calendar appointments
-gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
-date_events_str, time_events_str = get_calendar_events(gmail_accounts)
+date_events_str, time_events_str = calendar.get_calendar_events()
 daily_events_str = get_daily_events()
 
 # Seasons
@@ -45,8 +48,6 @@ season_str = season_progress()
 
 # Public holiday
 holiday_str = check_public_holiday()
-
-# News - https://content.guardianapis.com/search?api-key=764a3153-29a8-4ce7-8c48-d7f33b05dca3
 
 # Output
 announcement = (

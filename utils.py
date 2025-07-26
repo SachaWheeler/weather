@@ -28,144 +28,147 @@ today = now.strftime("%Y-%m-%d")
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
+class Calendar:
+    def __init__(self, accounts=None):
+        self.accounts = accounts
+        self.now = datetime.now(london_tz)
+        self.today = self.now.strftime("%Y-%m-%d")
+        self.sorted_times = {}
 
-def is_first_run_today():
-    if os.path.exists(LAST_RUN_FILE):
-        with open(LAST_RUN_FILE, "r") as file:
-            last_run_date = file.read().strip()
+    def is_first_run_today(self):
+        if os.path.exists(LAST_RUN_FILE):
+            with open(LAST_RUN_FILE, "r") as file:
+                last_run_date = file.read().strip()
 
-        # Check if today's date is different from the last run date
-        if today != last_run_date:
-            # Update the last run date
+            # Check if today's date is different from the last run date
+            if self.today != last_run_date:
+                # Update the last run date
+                with open(LAST_RUN_FILE, "w") as file:
+                    file.write(self.today)
+                return True
+            else:
+                return False
+        else:
+            # If the file doesn't exist, it's the first run ever
             with open(LAST_RUN_FILE, "w") as file:
-                file.write(today)
+                file.write(self.today)
             return True
+
+    def authenticate_google_calendar(self, account=None):
+        """Authenticates with the Google Calendar API using a service account."""
+        if account is None:
+            return None
         else:
-            return False
-    else:
-        # If the file doesn't exist, it's the first run ever
-        with open(LAST_RUN_FILE, "w") as file:
-            file.write(today)
-        return True
+            SERVICE_ACCOUNT_FILE = ACCT_CREDENTIALS[account]
 
-
-def authenticate_google_calendar(account=None):
-    """Authenticates with the Google Calendar API using a service account."""
-    # print(account)
-    if account is None:
-        return None
-    else:
-        SERVICE_ACCOUNT_FILE = ACCT_CREDENTIALS[account]
-
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, scopes=SCOPES
-    )
-
-    service = build("calendar", "v3", credentials=credentials)
-    return service, account
-
-
-def get_today_upcoming_events(service, account=None):
-    now_iso = now.isoformat()
-
-    # Calculate the end of the day in London, England
-    end_of_day = now.replace(hour=23, minute=59, second=59, microsecond=999999)
-    end_of_day_iso = end_of_day.isoformat()
-
-    # print('Getting today\'s upcoming events')
-    events_result = (
-        service.events()
-        .list(
-            calendarId=account,
-            timeMin=now_iso,
-            timeMax=end_of_day_iso,
-            singleEvents=True,
-            orderBy="startTime",
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES
         )
-        .execute()
-    )
-    events = events_result.get("items", [])
 
-    if not events:
-        return None
-    upcoming_events = {}
-    for event in events:
-        start = event["start"].get("dateTime", event["start"].get("date"))
-        # print(start, event['summary'])
-        upcoming_events[start] = event["summary"]
-    return upcoming_events
+        service = build("calendar", "v3", credentials=credentials)
+        return service, account
 
+    def get_today_upcoming_events(self, service, account=None):
+        now_iso = self.now.isoformat()
 
-def is_date_time(pair):
-    key, value = pair
-    return "T" in key
+        # Calculate the end of the day in London, England
+        end_of_day = self.now.replace(hour=23, minute=59, second=59, microsecond=999999)
+        end_of_day_iso = end_of_day.isoformat()
 
-
-def is_not_date_time(pair):
-    return not is_date_time(pair)
-
-
-def get_calendar_events(accounts=None):
-    if accounts is None:
-        return "arse"
-
-    count = 0
-    for acct in accounts:
-        # print(acct)
-        count += 1
-        service, account = authenticate_google_calendar(acct)
-        events = get_today_upcoming_events(service, account)
-
-        time_events = dict(filter(is_date_time, events.items())) if events else {}
-        date_events = dict(filter(is_not_date_time, events.items())) if events else {}
-
-        if count == 1:
-            combined_date = list(date_events.values()) if date_events else []
-            combined_time = time_events
-        else:
-            combined_date.extend(date_events.values())
-
-            for time, event in time_events.items():
-                if time in combined_time:
-                    # if there are two simultaneous events
-                    combined_time[time] += f", and {event}"
-                else:
-                    combined_time[time] = event
-
-            sorted_times = dict(
-                sorted(
-                    combined_time.items(),
-                    # key=lambda item: datetime.datetime.fromisoformat(item[0]))
-                    key=lambda item: parser.isoparse(item[0]),
-                )
+        events_result = (
+            service.events()
+            .list(
+                calendarId=account,
+                timeMin=now_iso,
+                timeMax=end_of_day_iso,
+                singleEvents=True,
+                orderBy="startTime",
             )
+            .execute()
+        )
+        events = events_result.get("items", [])
 
-    date_events_str = ""
-    if now.hour <= 9:
-        length = len(combined_date)
-        if length > 0:
-            date_events_str = "Events today include "
-            count = 0
-            for event_name in combined_date:
-                count += 1
-                date_events_str += f"{event_name}"
-                if length > count:
-                    date_events_str += ", and "
+        if not events:
+            return None
+        upcoming_events = {}
+        for event in events:
+            start = event["start"].get("dateTime", event["start"].get("date"))
+            upcoming_events[start] = event["summary"]
+        return upcoming_events
 
-    time_events_str = ""
-    for event_time, event_name in sorted_times.items():
-        time_str = get_time_str(extract_time(event_time), True)
+    def is_date_time(self, pair):
+        key, value = pair
+        return "T" in key
 
-        if time_events_str == "":
-            time_events_str = f"Your next appointment is {event_name} at {time_str}"
-        else:
-            time_events_str += f", followed by {event_name} at {time_str}"
-            break
-    if time_events_str == "" and now.hour <= 12:
-        time_events_str = "No appointments"
+    def is_not_date_time(self, pair):
+        return not self.is_date_time(pair)
 
-    return date_events_str, time_events_str
+    def get_calendar_events(self):
+        if self.accounts is None:
+            return "No accounts provided"
 
+        count = 0
+        combined_date = []
+        combined_time = {}
+
+        for acct in self.accounts:
+            count += 1
+            service, account = self.authenticate_google_calendar(acct)
+            events = self.get_today_upcoming_events(service, account)
+
+            time_events = dict(filter(self.is_date_time, events.items())) if events else {}
+            date_events = dict(filter(self.is_not_date_time, events.items())) if events else {}
+
+            if count == 1:
+                combined_date = list(date_events.values()) if date_events else []
+                combined_time = time_events
+            else:
+                combined_date.extend(date_events.values())
+
+                for time, event in time_events.items():
+                    if time in combined_time:
+                        combined_time[time] += f", and {event}"
+                    else:
+                        combined_time[time] = event
+
+                self.sorted_times = dict(
+                    sorted(
+                        combined_time.items(),
+                        key=lambda item: parser.isoparse(item[0]),
+                    )
+                )
+
+        date_events_str = ""
+        if self.now.hour <= 9:
+            length = len(combined_date)
+            if length > 0:
+                date_events_str = "Events today include "
+                count = 0
+                for event_name in combined_date:
+                    count += 1
+                    date_events_str += f"{event_name}"
+                    if length > count:
+                        date_events_str += ", and "
+
+        time_events_str = ""
+        for event_time, event_name in self.sorted_times.items():
+            time_str = get_time_str(self.extract_time(event_time), True)
+
+            if time_events_str == "":
+                time_events_str = f"Your next appointment is {event_name} at {time_str}"
+            else:
+                time_events_str += f", followed by {event_name} at {time_str}"
+                break
+        if time_events_str == "" and self.now.hour <= 12:
+            time_events_str = "No appointments"
+
+        return date_events_str, time_events_str
+
+    def extract_time(self, start):
+        match = re.search(r"T(\d{2}:\d{2}):\d{2}", start)
+        if match:
+            return match.group(1)
+        return start
 
 def get_time_str(time, twentyfour_hour=False):
     time = datetime.strptime(time, "%H:%M")
@@ -185,14 +188,6 @@ def get_time_str(time, twentyfour_hour=False):
         minute = num2words(minute, lang="en")
     string = f"{hour} {minute}"
     return string
-
-
-def extract_time(start):
-    match = re.search(r"T(\d{2}:\d{2}):\d{2}", start)
-    if match:
-        return match.group(1)
-    return start
-
 
 def is_file_outdated(file_path, max_age_minutes=20):
     if not os.path.exists(file_path):
