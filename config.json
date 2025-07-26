@@ -1,0 +1,6 @@
+{
+    "weather_location": "London",
+    "timezone": "Europe/London",
+    "calendar_accounts": ["sacha@jftwines.com", "sacha@sachawheeler.com"],
+    "update_interval_minutes": 60
+}

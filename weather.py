@@ -2,6 +2,7 @@
 from __future__ import print_function
 import time
 import pytz
+import json
 
 from utils import (
     Calendar,
@@ -14,19 +15,21 @@ from utils import (
 
 time.sleep(10)
 
+with open("config.json", "r") as file:
+    config = json.load(file)
+
+# Initialize Weather and Calendar with configuration
+weather = Weather(location=config["weather_location"])
+calendar = Calendar(calendar_accounts=config["calendar_accounts"], timezone=pytz.timezone(config["timezone"]))
+season = Season()
+
 # Get current time and date
 greeting_stage, formatted_date = get_greeting()
 
-# Set timezone to London
-london_tz = pytz.timezone("Europe/London")
-gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
-
-# Initialize Calendar with required Gmail accounts
-calendar = Calendar(calendar_accounts=gmail_accounts, timezone=london_tz)
+# Get Calendar Events
 all_day_events_str, timed_events_str = calendar.get_calendar_events()
 
 # Get Weather
-weather = Weather(location="London")
 
 # Current conditions
 current_temperature, conditions = weather.get_current_conditions()
@@ -38,7 +41,6 @@ sunrise, sunset, hours_of_day_str = weather.get_sunset_hours()
 rain_forecast_str = weather.get_rain_prediction()
 
 # Season progress
-season = Season()
 season_progress_str = season.get_season_progress()
 
 # Other events
