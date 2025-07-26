@@ -17,7 +17,6 @@ from licence import API_KEY
 
 london_tz = pytz.timezone("Europe/London")
 now = datetime.now(london_tz)
-# today = now.strftime("%Y-%m-%d")
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
