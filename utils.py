@@ -16,7 +16,9 @@ from num2words import num2words
 from licence import API_KEY
 
 DEFAULT_TIMEZONE = pytz.timezone("Europe/London")
-now = datetime.now(DEFAULT_TIMEZONE)
+with open("config.json", "r") as file:
+    config = json.load(file)
+now = datetime.now(pytz.timezone(config["timezone"])) if "timezone" in config else datetime.now(DEFAULT_TIMEZONE)
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
