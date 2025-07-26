@@ -21,7 +21,7 @@ with open("config.json", "r") as file:
 # Initialize Weather and Calendar with configuration
 weather = Weather(location=config["weather_location"])
 calendar = Calendar(
-    calendar_accounts=config["calendar_accounts"],
+    calendar_accounts=config["CALENDAR_ACCT_CREDENTIALS"],
     timezone=pytz.timezone(config["timezone"]),
 )
 season = Season()

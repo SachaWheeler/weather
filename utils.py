@@ -30,7 +30,8 @@ class Calendar:
         cache_file="calendar_cache.json",
         cache_expiry_hours=1,
     ):
-        self.calendar_accounts = calendar_accounts
+        self.calendar_accounts = calendar_accounts.keys()
+        self.CALENDAR_ACCT_CREDENTIALS = calendar_accounts
         self.now = datetime.now(timezone)
         self.current_date = self.now.strftime("%Y-%m-%d")
         self.sorted_event_times = {}
@@ -39,10 +40,6 @@ class Calendar:
 
     # Define the scope for the Google Calendar API
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
-    ACCT_CREDENTIALS = {
-        "sacha@jftwines.com": "bibo-calendar.json",
-        "sacha@sachawheeler.com": "sacha-calendar.json",
-    }
 
     def is_cache_outdated(self):
         """Check if the cache file exists and is still valid."""
@@ -94,7 +91,7 @@ class Calendar:
         if account is None:
             return None
         else:
-            SERVICE_ACCOUNT_FILE = self.ACCT_CREDENTIALS[account]
+            SERVICE_ACCOUNT_FILE = self.CALENDAR_ACCT_CREDENTIALS[account]
 
         credentials = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE, scopes=self.SCOPES
