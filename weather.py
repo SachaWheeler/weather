@@ -1,52 +1,51 @@
 #!/usr/bin/env python3
 from __future__ import print_function
 import time
+import pytz
+from datetime import datetime
 
 from utils import (
     Calendar,
-    get_weather_data,
+    Weather,
     get_greeting,
-    get_current_conditions,
-    get_wind,
-    get_temp_forecast,
-    get_sunset_hours,
-    get_rain_prediction,
-    season_progress,
+    Season,
     check_public_holiday,
     get_daily_events,
 )
 
 time.sleep(10)
 
-# Initialize Calendar object with required Gmail accounts
+# Get current time and date
+day_stage, date_str = get_greeting()
+
+# Set timezone to London
+london_tz = pytz.timezone("Europe/London")
 gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
-calendar = Calendar(accounts=gmail_accounts)
+
+# Initialize Calendar object with required Gmail accounts
+calendar = Calendar(accounts=gmail_accounts, timezone=london_tz)
+date_events_str, time_events_str = calendar.get_calendar_events()
 
 # Get Weather
-weather_data = get_weather_data()
+weather = Weather(location="London")
 
-# Current
-current = weather_data["current"]
-
-day_stage, date_str = get_greeting(current)
-current_temp, conditions = get_current_conditions(current)
-wind_speed, wind_direction = get_wind(current)
+# Current conditions
+current_temp, conditions = weather.get_current_conditions()
+wind_speed, wind_direction = weather.get_wind()
 
 # Forecast
-today = weather_data["forecast"]["forecastday"][0]
+temp_forecast = weather.get_temp_forecast()
+sunrise, sunset, hours_of_day_str = weather.get_sunset_hours()
+rain_prediction = weather.get_rain_prediction()
 
-temp_forecast = get_temp_forecast(today)
-sunrise, sunset, hours_of_day_str = get_sunset_hours(today["astro"])
-rain_prediction = get_rain_prediction(today["hour"])
-
-# Calendar appointments
-date_events_str, time_events_str = calendar.get_calendar_events()
+# Other events
 daily_events_str = get_daily_events()
 
-# Seasons
-season_str = season_progress()
+# Season progress
+season = Season()
+season_str = season.season_progress()
 
-# Public holiday
+# Public holidays
 holiday_str = check_public_holiday()
 
 # Output
