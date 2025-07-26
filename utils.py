@@ -17,16 +17,25 @@ from licence import API_KEY
 
 london_tz = pytz.timezone("Europe/London")
 now = datetime.now(london_tz)
-today = now.strftime("%Y-%m-%d")
+# today = now.strftime("%Y-%m-%d")
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
+
 class Calendar:
-    def __init__(self, accounts=None, timezone=london_tz):
-        self.accounts = accounts
+    def __init__(
+        self,
+        calendar_accounts=None,
+        timezone=london_tz,
+        cache_file="calendar_cache.json",
+        cache_expiry_hours=1,
+    ):
+        self.calendar_accounts = calendar_accounts
         self.now = datetime.now(timezone)
-        self.today = self.now.strftime("%Y-%m-%d")
-        self.sorted_times = {}
+        self.current_date = self.now.strftime("%Y-%m-%d")
+        self.sorted_event_times = {}
+        self.cache_file = cache_file
+        self.cache_expiry_hours = cache_expiry_hours
 
     # Define the scope for the Google Calendar API
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
@@ -35,6 +44,30 @@ class Calendar:
         "sacha@sachawheeler.com": "sacha-calendar.json",
     }
 
+    def is_cache_outdated(self):
+        """Check if the cache file exists and is still valid."""
+        if not os.path.exists(self.cache_file):
+            return True  # Cache does not exist
+
+        # Get the last modification time of the cache file
+        file_mtime = os.path.getmtime(self.cache_file)
+        last_modified = datetime.fromtimestamp(file_mtime, london_tz)
+        expiry_time = last_modified + timedelta(hours=self.cache_expiry_hours)
+
+        return self.now > expiry_time  # Cache is outdated if the current time is past the expiry time
+
+    def load_cached_data(self):
+        """Load data from the cache file."""
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, "r") as file:
+                return json.load(file)
+        return {}
+
+    def save_to_cache(self, data):
+        """Save data to the cache file."""
+        with open(self.cache_file, "w") as file:
+            json.dump(data, file)
+
 
     def is_first_run_today(self):
         if os.path.exists(LAST_RUN_FILE):
@@ -42,17 +75,17 @@ class Calendar:
                 last_run_date = file.read().strip()
 
             # Check if today's date is different from the last run date
-            if self.today != last_run_date:
+            if self.current_date != last_run_date:
                 # Update the last run date
                 with open(LAST_RUN_FILE, "w") as file:
-                    file.write(self.today)
+                    file.write(self.current_date)
                 return True
             else:
                 return False
         else:
             # If the file doesn't exist, it's the first run ever
             with open(LAST_RUN_FILE, "w") as file:
-                file.write(self.today)
+                file.write(self.current_date)
             return True
 
     def authenticate_google_calendar(self, account=None):
@@ -105,14 +138,19 @@ class Calendar:
         return not self.is_date_time(pair)
 
     def get_calendar_events(self):
-        if self.accounts is None:
+        if not self.is_cache_outdated():
+            # Load data from the cache
+            cached_data = self.load_cached_data()
+            return cached_data.get("date_events_str", ""), cached_data.get("time_events_str", "")
+
+        if self.calendar_accounts is None:
             return "No accounts provided"
 
         count = 0
-        combined_date = []
-        combined_time = {}
+        all_day_events = []
+        timed_events = {}
 
-        for acct in self.accounts:
+        for acct in self.calendar_accounts:
             count += 1
             service, account = self.authenticate_google_calendar(acct)
             events = self.get_today_upcoming_events(service, account)
@@ -125,49 +163,51 @@ class Calendar:
             )
 
             if count == 1:
-                combined_date = list(date_events.values()) if date_events else []
-                combined_time = time_events
+                all_day_events = list(date_events.values()) if date_events else []
+                timed_events = time_events
             else:
-                combined_date.extend(date_events.values())
+                all_day_events.extend(date_events.values())
 
                 for time, event in time_events.items():
-                    if time in combined_time:
-                        combined_time[time] += f", and {event}"
+                    if time in timed_events:
+                        timed_events[time] += f", and {event}"
                     else:
-                        combined_time[time] = event
+                        timed_events[time] = event
 
-                self.sorted_times = dict(
+                self.sorted_event_times = dict(
                     sorted(
-                        combined_time.items(),
+                        timed_events.items(),
                         key=lambda item: parser.isoparse(item[0]),
                     )
                 )
 
-        date_events_str = ""
+        all_day_events_str = ""
         if self.now.hour <= 9:
-            length = len(combined_date)
+            length = len(all_day_events)
             if length > 0:
-                date_events_str = "Events today include "
+                all_day_events_str = "Events today include "
                 count = 0
-                for event_name in combined_date:
+                for event_name in all_day_events:
                     count += 1
-                    date_events_str += f"{event_name}"
+                    all_day_events_str += f"{event_name}"
                     if length > count:
-                        date_events_str += ", and "
+                        all_day_events_str += ", and "
 
-        time_events_str = ""
-        for event_time, event_name in self.sorted_times.items():
+        timed_events_str = ""
+        for event_time, event_name in self.sorted_event_times.items():
             time_str = get_time_str(self.extract_time(event_time), True)
 
-            if time_events_str == "":
-                time_events_str = f"Your next appointment is {event_name} at {time_str}"
+            if timed_events_str == "":
+                timed_events_str = (
+                    f"Your next appointment is {event_name} at {time_str}"
+                )
             else:
-                time_events_str += f", followed by {event_name} at {time_str}"
+                timed_events_str += f", followed by {event_name} at {time_str}"
                 break
-        if time_events_str == "" and self.now.hour <= 12:
-            time_events_str = "No appointments"
+        if timed_events_str == "" and self.now.hour <= 12:
+            timed_events_str = "No appointments"
 
-        return date_events_str, time_events_str
+        return all_day_events_str, timed_events_str
 
     def extract_time(self, start):
         match = re.search(r"T(\d{2}:\d{2}):\d{2}", start)
@@ -215,12 +255,37 @@ def get_greeting():
 
 # Weather class encapsulating all weather-related functionality
 class Weather:
-    def __init__(self, location="London"):
+    def __init__(self, location="London", cache_file="weather_cache.json", cache_expiry_minutes=30):
         self.location = location
         self.api_key = API_KEY
-        self.api_domain = "http://api.weatherapi.com/v1/forecast.json"
-        self.json_file_path = "fetched_data.json"
+        self.weather_api_url = "http://api.weatherapi.com/v1/forecast.json"
+        self.cache_file = cache_file
+        self.cache_expiry_minutes = cache_expiry_minutes
         self.weather_data = self.get_weather_data()
+
+    def is_cache_outdated(self):
+        """Check if the cache file exists and is still valid."""
+        if not os.path.exists(self.cache_file):
+            return True  # Cache does not exist
+
+        # Get the last modification time of the cache file
+        file_mtime = os.path.getmtime(self.cache_file)
+        last_modified = datetime.fromtimestamp(file_mtime, london_tz)
+        expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
+
+        return now > expiry_time  # Cache is outdated if the current time is past the expiry time
+
+    def load_cached_data(self):
+        """Load data from the cache file."""
+        if os.path.exists(self.cache_file):
+            with open(self.cache_file, "r") as file:
+                return json.load(file)
+        return {}
+
+    def save_to_cache(self, data):
+        """Save data to the cache file."""
+        with open(self.cache_file, "w") as file:
+            json.dump(data, file)
 
     def is_file_outdated(self, file_path, max_age_minutes=20):
         if not os.path.exists(file_path):
@@ -235,18 +300,21 @@ class Weather:
         return current_time - file_mtime > max_age_seconds
 
     def get_weather_data(self):
-        api_url = f"{self.api_domain}?key={self.api_key}&q={self.location}&days=1&aqi=no&alerts=no"
+        """Fetch weather data from the API or load from cache if available."""
+        if not self.is_cache_outdated():
+            # Load data from the cache
+            return self.load_cached_data()
 
-        if self.is_file_outdated(self.json_file_path):
-            response = requests.get(api_url)
-            json_data = json.loads(response.text)
-            with open(self.json_file_path, "w") as f:
-                json.dump(json_data, f)
-        else:
-            with open(self.json_file_path, "r") as f:
-                json_data = json.load(f)
+        # If cache is outdated, fetch new data from the API
+        api_url = f"{self.weather_api_url}?key={self.api_key}&q={self.location}&days=1&aqi=no&alerts=no"
 
-        return json_data
+        response = requests.get(api_url)
+        weather_data = json.loads(response.text)
+
+        # Save the fetched data to the cache
+        self.save_to_cache(weather_data)
+
+        return weather_data
 
     def get_current_conditions(self, current=None):
         if current is None:
@@ -299,23 +367,23 @@ class Weather:
             wind_direction,
         )
 
-    def get_temp_forecast(self, forecast=None):
-        if forecast is None:
-            forecast = self.weather_data["forecast"]["forecastday"][0]
+    def get_temperature_forecast(self, forecast_data=None):
+        if forecast_data is None:
+            forecast_data = self.weather_data["forecast"]["forecastday"][0]
 
-        high = num2words(f"{forecast['day']['maxtemp_c']:0.0f}", lang="en")
-        low = int(forecast["day"]["mintemp_c"])
+        high = num2words(f"{forecast_data['day']['maxtemp_c']:0.0f}", lang="en")
+        low = int(forecast_data["day"]["mintemp_c"])
         low_str = num2words(low, lang="en")
-        temp_forecast = f"A high of {high} and a low of {low_str} degree{'s' if low > 1 else ''} Celcius"
-        return temp_forecast
+        temperature_forecast = f"A high of {high} and a low of {low_str} degree{'s' if low > 1 else ''} Celcius"
+        return temperature_forecast
 
-    def get_sunset_hours(self, astro=None):
-        if astro is None:
-            astro = self.weather_data["forecast"]["forecastday"][0]["astro"]
+    def get_sunset_hours(self, astro_data=None):
+        if astro_data is None:
+            astro_data = self.weather_data["forecast"]["forecastday"][0]["astro"]
 
-        sunset = get_time_str(astro["sunset"].split(" ")[0])
-        sunset_time = datetime.strptime(astro["sunset"], "%I:%M %p")
-        sunrise_time = datetime.strptime(astro["sunrise"], "%I:%M %p")
+        sunset = get_time_str(astro_data["sunset"].split(" ")[0])
+        sunset_time = datetime.strptime(astro_data["sunset"], "%I:%M %p")
+        sunrise_time = datetime.strptime(astro_data["sunrise"], "%I:%M %p")
 
         sunrise = ""
         sunrise_today = sunrise_time.replace(
@@ -385,9 +453,9 @@ class Weather:
 
 class Season:
     def __init__(self):
-        self.today = now.date()
+        self.current_date = now.date()
 
-    def season_dates(self, year):
+    def get_season_dates(self, year):
         """Return the start dates of seasons for the given year."""
         return {
             "Spring": date(year, 3, 20),
@@ -397,13 +465,13 @@ class Season:
         }
 
     def get_current_and_next_season(self):
-        year = self.today.year
-        seasons = self.season_dates(year)
+        year = self.current_date.year
+        seasons = self.get_season_dates(year)
         season_names = ["Spring", "Summer", "Autumn", "Winter"]
 
         # Determine current season and next season
         for i, season in enumerate(season_names):
-            if self.today < seasons[season]:
+            if self.current_date < seasons[season]:
                 current_season = season_names[i - 1] if i > 0 else "Winter"
                 current_start = (
                     seasons[current_season]
@@ -421,13 +489,13 @@ class Season:
 
         return current_season, current_start, next_season, next_start
 
-    def season_progress(self):
+    def get_season_progress(self):
         current_season, current_start, next_season, next_start = (
             self.get_current_and_next_season()
         )
 
-        days_passed = (self.today - current_start).days + 1
-        days_until_next = (next_start - self.today).days
+        days_passed = (self.current_date - current_start).days + 1
+        days_until_next = (next_start - self.current_date).days
 
         total_days = days_passed + days_until_next
         proportion_passed = days_passed / total_days if total_days > 0 else 0

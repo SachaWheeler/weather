@@ -15,54 +15,54 @@ from utils import (
 time.sleep(10)
 
 # Get current time and date
-day_stage, date_str = get_greeting()
+greeting_stage, formatted_date = get_greeting()
 
 # Set timezone to London
 london_tz = pytz.timezone("Europe/London")
 gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
 
 # Initialize Calendar with required Gmail accounts
-calendar = Calendar(accounts=gmail_accounts, timezone=london_tz)
-date_events_str, time_events_str = calendar.get_calendar_events()
+calendar = Calendar(calendar_accounts=gmail_accounts, timezone=london_tz)
+all_day_events_str, timed_events_str = calendar.get_calendar_events()
 
 # Get Weather
 weather = Weather(location="London")
 
 # Current conditions
-current_temp, conditions = weather.get_current_conditions()
-wind_speed, wind_direction = weather.get_wind()
+current_temperature, conditions = weather.get_current_conditions()
+wind_speed_str, wind_direction = weather.get_wind()
 
 # Forecast
-temp_forecast = weather.get_temp_forecast()
+temp_forecast = weather.get_temperature_forecast()
 sunrise, sunset, hours_of_day_str = weather.get_sunset_hours()
-rain_prediction = weather.get_rain_prediction()
+rain_forecast_str = weather.get_rain_prediction()
 
 # Season progress
 season = Season()
-season_str = season.season_progress()
+season_progress_str = season.get_season_progress()
 
 # Other events
-daily_events_str = get_daily_events()
+hourly_events_str = get_daily_events()
 
 # Public holidays
-holiday_str = check_public_holiday()
+public_holiday_str = check_public_holiday()
 
 # Output
 announcement = (
     f"""
 
-    Good {day_stage}.
-    It is {date_str}.
-    {season_str}. {holiday_str}.
+    Good {greeting_stage}.
+    It is {formatted_date}.
+    {season_progress_str}. {public_holiday_str}.
     {sunrise}.
-    It is {current_temp}.
-    Currently {conditions} with {wind_speed} from the {wind_direction}.
-    {rain_prediction}.
+    It is {current_temperature}.
+    Currently {conditions} with {wind_speed_str} from the {wind_direction}.
+    {rain_forecast_str}.
     {temp_forecast}.
-    {date_events_str}.
-    {time_events_str}.
+    {all_day_events_str}.
+    {timed_events_str}.
     Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-    {daily_events_str}.
+    {hourly_events_str}.
 
 """.replace("minus", "negative")
     .replace(

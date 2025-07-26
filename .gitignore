@@ -10,3 +10,4 @@ output.txt
 .env
 test_output.txt
 calendar.txt
+weather_cache.json
