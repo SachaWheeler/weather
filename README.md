@@ -25,7 +25,7 @@ to keep me on track.
 - Google Calendar & API key
 - [OpenWeatherMap API key](https://openweathermap.org/api)
 - [List of public holidays](https://www.gov.uk/bank-holidays.json)
-- A text-to-speech engine (I use 'say' on a networked Mac - it has the best voices)
+- A text-to-speech engine (I use 'say' on a networked Mac)
 
 ## Example Output
 
