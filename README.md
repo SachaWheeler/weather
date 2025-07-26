@@ -25,7 +25,7 @@ to keep me on track.
 - Google Calendar & API key
 - [OpenWeatherMap API key](https://openweathermap.org/api)
 - [List of public holidays](https://www.gov.uk/bank-holidays.json)
-- A text-to-speech engine ('say' on a networked Mac)
+- A text-to-speech engine (I use 'say' on a networked Mac - it has the best voices)
 
 ## Example Output
 
@@ -33,7 +33,7 @@ This would be sent to a text-to-speech engine:
 > Good morning.
 > It is eight o clock on Friday the twenty-fifth of July.
 > We are thirty-five days, or three eighths of the way into Summer, with sixty days left.
-> It is seventeen degrees.
+> It is seventeen degrees but feels like sixteen.
 > Currently Partly Cloudy with wind speed of one meter per second from the North North West.
 > A high of twenty-six and a low of sixteen degrees Celcius.
 > Events today include Lizzies birthday.
