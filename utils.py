@@ -570,6 +570,7 @@ def get_daily_events(file_path="calendar.txt"):
 
     return ". ".join(matching_entries)
 
+
 def get_time_str(time, twentyfour_hour=False):
     time = datetime.strptime(time, "%H:%M")
     BST = 0  # 1  # make zero again when BST ends
@@ -605,4 +606,3 @@ def get_greeting():
     month = now.strftime("%B")
     date_str = f"{hour} o clock on {day} the {date} of {month}"
     return day_stage, date_str
-
