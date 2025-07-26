@@ -8,8 +8,6 @@ import pytz
 import json
 import time
 
-# pip install --upgrade google-api-python-client
-
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from num2words import num2words
@@ -253,7 +251,7 @@ class Weather:
         expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
         return (
-            now > expiry_time
+            datetime.now(self.timezone) > expiry_time
         )  # Cache is outdated if the current time is past the expiry time
 
     def load_cached_data(self):
