@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import print_function
 import time
-import pytz
 import json
 
 from utils import (
@@ -19,10 +18,10 @@ with open("config.json", "r") as file:
     config = json.load(file)
 
 # Initialize Weather and Calendar with configuration
-weather = Weather(location=config["weather_location"])
+weather = Weather(location=config["weather_location"], timezone=config["timezone"])
 calendar = Calendar(
     calendar_accounts=config["CALENDAR_ACCT_CREDENTIALS"],
-    timezone=pytz.timezone(config["timezone"]),
+    timezone=config["timezone"],
 )
 season = Season()
 

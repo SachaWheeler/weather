@@ -15,8 +15,8 @@ from googleapiclient.discovery import build
 from num2words import num2words
 from licence import API_KEY
 
-london_tz = pytz.timezone("Europe/London")
-now = datetime.now(london_tz)
+DEFAULT_TIMEZONE = pytz.timezone("Europe/London")
+now = datetime.now(DEFAULT_TIMEZONE)
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
@@ -25,13 +25,14 @@ class Calendar:
     def __init__(
         self,
         calendar_accounts=None,
-        timezone=london_tz,
         cache_file="calendar_cache.json",
         cache_expiry_hours=1,
+        timezone=None,
     ):
         self.calendar_accounts = calendar_accounts.keys()
         self.CALENDAR_ACCT_CREDENTIALS = calendar_accounts
-        self.now = datetime.now(timezone)
+        self.timezone = pytz.timezone(timezone) if timezone else DEFAULT_TIMEZONE
+        self.now = datetime.now(self.timezone)
         self.current_date = self.now.strftime("%Y-%m-%d")
         self.sorted_event_times = {}
         self.cache_file = cache_file
@@ -47,7 +48,7 @@ class Calendar:
 
         # Get the last modification time of the cache file
         file_mtime = os.path.getmtime(self.cache_file)
-        last_modified = datetime.fromtimestamp(file_mtime, london_tz)
+        last_modified = datetime.fromtimestamp(file_mtime, self.timezone)
         expiry_time = last_modified + timedelta(hours=self.cache_expiry_hours)
 
         return (
@@ -229,12 +230,14 @@ class Weather:
         location="London",
         cache_file="weather_cache.json",
         cache_expiry_minutes=30,
+        timezone=None,
     ):
         self.location = location
         self.api_key = API_KEY
         self.weather_api_url = "http://api.weatherapi.com/v1/forecast.json"
         self.cache_file = cache_file
         self.cache_expiry_minutes = cache_expiry_minutes
+        self.timezone = pytz.timezone(timezone) if timezone else DEFAULT_TIMEZONE
         self.weather_data = self.get_weather_data()
 
     def is_cache_outdated(self):
@@ -244,7 +247,7 @@ class Weather:
 
         # Get the last modification time of the cache file
         file_mtime = os.path.getmtime(self.cache_file)
-        last_modified = datetime.fromtimestamp(file_mtime, london_tz)
+        last_modified = datetime.fromtimestamp(file_mtime, self.timezone)
         expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
         return (
@@ -363,7 +366,7 @@ class Weather:
 
         sunrise = ""
         sunrise_today = sunrise_time.replace(
-            year=now.year, month=now.month, day=now.day, tzinfo=london_tz
+            year=now.year, month=now.month, day=now.day, tzinfo=self.timezone
         )
         if (
             sunrise_today.time() > now.time()
