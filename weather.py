@@ -2,7 +2,6 @@
 from __future__ import print_function
 import time
 import pytz
-from datetime import datetime
 
 from utils import (
     Calendar,
@@ -22,7 +21,7 @@ day_stage, date_str = get_greeting()
 london_tz = pytz.timezone("Europe/London")
 gmail_accounts = ["sacha@jftwines.com", "sacha@sachawheeler.com"]
 
-# Initialize Calendar object with required Gmail accounts
+# Initialize Calendar with required Gmail accounts
 calendar = Calendar(accounts=gmail_accounts, timezone=london_tz)
 date_events_str, time_events_str = calendar.get_calendar_events()
 
@@ -38,12 +37,12 @@ temp_forecast = weather.get_temp_forecast()
 sunrise, sunset, hours_of_day_str = weather.get_sunset_hours()
 rain_prediction = weather.get_rain_prediction()
 
-# Other events
-daily_events_str = get_daily_events()
-
 # Season progress
 season = Season()
 season_str = season.season_progress()
+
+# Other events
+daily_events_str = get_daily_events()
 
 # Public holidays
 holiday_str = check_public_holiday()
