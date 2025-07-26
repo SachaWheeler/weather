@@ -11,7 +11,7 @@ import time
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from num2words import num2words
-from licence import API_KEY
+from licence import API_KEY as WEATHER_API_KEY
 
 DEFAULT_TIMEZONE = pytz.timezone("Europe/London")
 with open("config.json", "r") as file:
@@ -233,7 +233,7 @@ class Weather:
         timezone=None,
     ):
         self.location = location
-        self.api_key = API_KEY
+        self.api_key = WEATHER_API_KEY
         self.weather_api_url = "http://api.weatherapi.com/v1/forecast.json"
         self.cache_file = cache_file
         self.cache_expiry_minutes = cache_expiry_minutes
