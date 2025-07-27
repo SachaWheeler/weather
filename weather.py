@@ -38,7 +38,7 @@ current_temperature, conditions = weather.get_current_conditions()
 wind_speed, wind_direction = weather.get_wind()
 
 # Forecast
-temp_forecast = weather.get_temperature_forecast()
+temperature_forecast = weather.get_temperature_forecast()
 sunrise, sunset, hours_of_day = weather.get_sunset_hours()
 rain_forecast = weather.get_rain_prediction()
 
@@ -62,16 +62,18 @@ announcement = (
     It is {current_temperature}.
     Currently {conditions} with {wind_speed} from the {wind_direction}.
     {rain_forecast}.
-    {temp_forecast}.
+    {temperature_forecast}.
     {all_day_events}.
     {timed_events}.
     Sunset will be at {sunset} for {hours_of_day} of daylight.
     {hourly_events}.
 
-""".replace("minus", "negative")
-    .replace(
+""".replace(
         "    ",
         "",  # left padding
+    )
+    .replace(
+        "minus", "negative"
     )
     .replace(
         "\n.",
