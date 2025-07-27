@@ -29,27 +29,27 @@ season = Season()
 greeting_stage, formatted_date = get_greeting()
 
 # Get Calendar Events
-all_day_events_str, timed_events_str = calendar.get_calendar_events()
+all_day_events, timed_events = calendar.get_calendar_events()
 
 # Get Weather
 
 # Current conditions
 current_temperature, conditions = weather.get_current_conditions()
-wind_speed_str, wind_direction = weather.get_wind()
+wind_speed, wind_direction = weather.get_wind()
 
 # Forecast
 temp_forecast = weather.get_temperature_forecast()
-sunrise, sunset, hours_of_day_str = weather.get_sunset_hours()
-rain_forecast_str = weather.get_rain_prediction()
+sunrise, sunset, hours_of_day = weather.get_sunset_hours()
+rain_forecast = weather.get_rain_prediction()
 
 # Season progress
-season_progress_str = season.get_season_progress()
+season_progress = season.get_season_progress()
 
 # Other events
-hourly_events_str = get_daily_events()
+hourly_events = get_daily_events()
 
 # Public holidays
-public_holiday_str = check_public_holiday()
+public_holiday = check_public_holiday()
 
 # Output
 announcement = (
@@ -57,16 +57,16 @@ announcement = (
 
     Good {greeting_stage}.
     It is {formatted_date}.
-    {season_progress_str}. {public_holiday_str}.
+    {season_progress}. {public_holiday}.
     {sunrise}.
     It is {current_temperature}.
-    Currently {conditions} with {wind_speed_str} from the {wind_direction}.
-    {rain_forecast_str}.
+    Currently {conditions} with {wind_speed} from the {wind_direction}.
+    {rain_forecast}.
     {temp_forecast}.
-    {all_day_events_str}.
-    {timed_events_str}.
-    Sunset will be at {sunset} for {hours_of_day_str} of daylight.
-    {hourly_events_str}.
+    {all_day_events}.
+    {timed_events}.
+    Sunset will be at {sunset} for {hours_of_day} of daylight.
+    {hourly_events}.
 
 """.replace("minus", "negative")
     .replace(
