@@ -26,7 +26,7 @@ class Calendar:
         self,
         calendar_accounts=None,
         cache_file="calendar_cache.json",
-        cache_expiry_hours=1,
+        cache_expiry_minutes=30,
         timezone=None,
     ):
         self.calendar_accounts = calendar_accounts.keys()
@@ -36,7 +36,7 @@ class Calendar:
         self.current_date = self.now.strftime("%Y-%m-%d")
         self.sorted_event_times = {}
         self.cache_file = cache_file
-        self.cache_expiry_hours = cache_expiry_hours
+        self.cache_expiry_minutes = cache_expiry_minutes
 
     # Define the scope for the Google Calendar API
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
@@ -49,7 +49,7 @@ class Calendar:
         # Get the last modification time of the cache file
         file_mtime = os.path.getmtime(self.cache_file)
         last_modified = datetime.fromtimestamp(file_mtime, self.timezone)
-        expiry_time = last_modified + timedelta(hours=self.cache_expiry_hours)
+        expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
         return (
             self.now > expiry_time
