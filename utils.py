@@ -16,7 +16,11 @@ from licence import API_KEY as WEATHER_API_KEY
 DEFAULT_TIMEZONE = pytz.timezone("Europe/London")
 with open("config.json", "r") as file:
     config = json.load(file)
-now = datetime.now(pytz.timezone(config["timezone"])) if "timezone" in config else datetime.now(DEFAULT_TIMEZONE)
+now = (
+    datetime.now(pytz.timezone(config["timezone"]))
+    if "timezone" in config
+    else datetime.now(DEFAULT_TIMEZONE)
+)
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
@@ -51,9 +55,7 @@ class Calendar:
         last_modified = datetime.fromtimestamp(file_mtime, self.timezone)
         expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
-        return (
-            self.now > expiry_time
-        )  # Cache is outdated if the current time is past the expiry time
+        return self.now > expiry_time
 
     def load_cached_data(self):
         """Load data from the cache file."""
@@ -223,6 +225,10 @@ class Calendar:
         return start
 
 
+def plural(var):
+    return "s" if var != 1 else ""
+
+
 # Weather class encapsulating all weather-related functionality
 class Weather:
     def __init__(
@@ -250,9 +256,7 @@ class Weather:
         last_modified = datetime.fromtimestamp(file_mtime, self.timezone)
         expiry_time = last_modified + timedelta(minutes=self.cache_expiry_minutes)
 
-        return (
-            datetime.now(self.timezone) > expiry_time
-        )  # Cache is outdated if the current time is past the expiry time
+        return datetime.now(self.timezone) > expiry_time
 
     def load_cached_data(self):
         """Load data from the cache file."""
@@ -300,9 +304,7 @@ class Weather:
             current = self.weather_data["current"]
 
         temp_c = int(current["temp_c"])
-        current_temp = (
-            f"{num2words(temp_c, lang='en')} degree{'' if temp_c == 1 else 's'}"
-        )
+        current_temp = f"{num2words(temp_c, lang='en')} degree{plural(temp_c)}"
         if int(current["temp_c"]) != int(current["feelslike_c"]):
             current_temp += (
                 f" but feels like {num2words(int(current['feelslike_c']), lang='en')}"
@@ -342,7 +344,7 @@ class Weather:
         wind_speed_str = num2words(wind_speed, lang="en")
         wind_direction = self.deg_to_compass(current["wind_degree"])
         return (
-            f" wind speed of {wind_speed_str} meter{'s' if wind_speed > 1 else ''} per second",
+            f"wind speed of {wind_speed_str} meter{plural(wind_speed)} per second",
             wind_direction,
         )
 
@@ -353,7 +355,9 @@ class Weather:
         high = num2words(f"{forecast_data['day']['maxtemp_c']:0.0f}", lang="en")
         low = int(forecast_data["day"]["mintemp_c"])
         low_str = num2words(low, lang="en")
-        temperature_forecast = f"A high of {high} and a low of {low_str} degree{'s' if low > 1 else ''} Celcius"
+        temperature_forecast = (
+            f"A high of {high} and a low of {low_str} degree{plural(low)} Celcius"
+        )
         return temperature_forecast
 
     def get_sunset_hours(self, astro_data=None):
@@ -378,11 +382,11 @@ class Weather:
 
             sunrise = "Sunrise will be in"
             if hours > 0:
-                sunrise += f" {num2words(hours)} hour{'s' if hours > 1 else ''}"
+                sunrise += f" {num2words(hours)} hour{plural(hours)}"
             if hours > 0 and minutes > 0:
                 sunrise += " and"
             if minutes > 0:
-                sunrise += f" {num2words(minutes)} minute{'s' if minutes > 1 else ''}"
+                sunrise += f" {num2words(minutes)} minute{plural(minutes)}"
 
         secs_of_day = sunset_time - sunrise_time
         hours_of_day, mins_of_day, _ = str(secs_of_day).split(":")
@@ -507,10 +511,10 @@ class Season:
             return f"{current_season} is over. Total duration: {total_days} days"
 
         return (
-            f"We are {num2words(days_passed)} day{'s' if days_passed != 1 else ''}, "
-            f"or {numerator} {denominator}{'s' if closest_numerator > 1 else ''} "
+            f"We are {num2words(days_passed)} day{plural(days_passed)}, "
+            f"or {numerator} {denominator}{plural(closest_numerator)} "
             f"of the way {progress} {current_season}, "
-            f"with {num2words(days_left)} day{'s' if days_left != 1 else ''} left"
+            f"with {num2words(days_left)} day{plural(days_left)} left"
         )
 
 
@@ -570,7 +574,7 @@ def get_daily_events(file_path="calendar.txt"):
     except FileNotFoundError:
         print(f"Calendar file not found at {file_path}")
 
-    return ". ".join(matching_entries)
+    return ".\n".join(matching_entries)
 
 
 def get_time_str(time, twentyfour_hour=False):

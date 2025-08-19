@@ -72,9 +72,7 @@ announcement = (
         "    ",
         "",  # left padding
     )
-    .replace(
-        "minus", "negative"
-    )
+    .replace("minus", "negative")
     .replace(
         "\n.",
         "",  # blank lines with '.'s
