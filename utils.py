@@ -11,7 +11,7 @@ import time
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from num2words import num2words
-from licence import API_KEY as WEATHER_API_KEY
+from weather_licence import API_KEY as WEATHER_API_KEY
 
 DEFAULT_TIMEZONE = pytz.timezone("Europe/London")
 with open("config.json", "r") as file:

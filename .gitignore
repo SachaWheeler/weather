@@ -1,8 +1,8 @@
 __pycache__/
-licence.py
-example.json
-bibo-calendar.json
-sacha-calendar.json
+weather_licence.py
+weather_example.json
+bibo-calendar_creds.json
+sacha-calendar_creds.json
 last_run_date.txt
 fetched_data.json
 lib/
