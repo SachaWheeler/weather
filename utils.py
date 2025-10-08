@@ -24,7 +24,6 @@ now = (
 
 LAST_RUN_FILE = "./last_run_date.txt"
 
-
 class Calendar:
     def __init__(
         self,
@@ -566,7 +565,7 @@ def check_public_holiday():
         return ""
 
 
-def get_daily_events(file_path="calendar.txt"):
+def daily_events(file_path="calendar.txt"):
     current_day = now.strftime("%A")  # e.g., Monday, Tuesday
     current_hour = now.hour  # e.g., 11, 14
 
@@ -623,7 +622,7 @@ def string_replacements(text):
     return text.lstrip().rstrip()
 
 
-def get_greeting():
+def day_stage():
     current_hour = int(now.strftime("%H"))
     if current_hour < 12:
         day_stage = "morning"
@@ -631,10 +630,12 @@ def get_greeting():
         day_stage = "afternoon"
     else:
         day_stage = "evening"
+    return day_stage
 
+def time_and_date():
     hour = num2words(now.strftime("%I"), lang="en")
     day = now.strftime("%A")
     date = num2words(now.strftime("%-d"), lang="en", to="ordinal")
     month = now.strftime("%B")
     date_str = f"{hour} o clock on {day} the {date} of {month}"
-    return day_stage, date_str
+    return date_str

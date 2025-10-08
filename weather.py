@@ -7,9 +7,10 @@ from utils import (
     Calendar,
     Weather,
     Season,
-    get_greeting,
+    day_stage,
+    time_and_date,
     check_public_holiday,
-    get_daily_events,
+    daily_events,
     string_replacements,
 )
 
@@ -28,8 +29,8 @@ season = Season()
 
 # Output
 announcement = f"""
-Good {get_greeting()[0]}.
-It is {get_greeting()[1]}.
+Good {day_stage()}.
+It is {time_and_date()}.
 {season.season_progress}. {check_public_holiday()}.
 {weather.sunrise}.
 It is {weather.current_temperature}.
@@ -39,7 +40,7 @@ Currently {weather.conditions} with {weather.wind_speed} from the {weather.wind_
 {calendar.all_day_events}.
 {calendar.timed_events}.
 Sunset will be at {weather.sunset} for {weather.hours_of_day} of daylight.
-{get_daily_events()}.
+{daily_events()}.
 """
 
 print(string_replacements(announcement))
