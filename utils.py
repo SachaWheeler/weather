@@ -42,6 +42,9 @@ class Calendar:
         self.cache_file = cache_file
         self.cache_expiry_minutes = cache_expiry_minutes
 
+        # set object attributes
+        self.all_day_events, self.timed_events = self.get_calendar_events()
+
     # Define the scope for the Google Calendar API
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
@@ -246,6 +249,15 @@ class Weather:
         self.timezone = pytz.timezone(timezone) if timezone else DEFAULT_TIMEZONE
         self.weather_data = self.get_weather_data()
 
+        # set object attributes
+        self.current_temperature, self.conditions = self.get_current_conditions()
+        self.wind_speed, self.wind_direction = self.get_wind()
+
+        # Forecast
+        self.temperature_forecast = self.get_temperature_forecast()
+        self.sunrise, self.sunset, self.hours_of_day = self.get_sunset_hours()
+        self.rain_forecast = self.get_rain_prediction()
+
     def is_cache_outdated(self):
         """Check if the cache file exists and is still valid."""
         if not os.path.exists(self.cache_file):
@@ -438,6 +450,9 @@ class Season:
     def __init__(self):
         self.current_date = now.date()
 
+        # set object attributes
+        self.season_progress = self.get_season_progress()
+
     def get_season_dates(self, year):
         """Return the start dates of seasons for the given year."""
         return {
@@ -595,6 +610,17 @@ def get_time_str(time, twentyfour_hour=False):
         minute = num2words(minute, lang="en")
     string = f"{hour} {minute}"
     return string
+
+
+def string_replacements(text):
+    for string, replacement in [
+        ("minus", "negative"),  # text-to-speech reads minus poorly
+        ("\n.", ""),  # blank lines
+        (" .", ""),  # double full stops
+        ("'", ""),  # apostrophes which brwak the text-to-speech script
+    ]:
+        text = text.replace(string, replacement)
+    return text.lstrip().rstrip()
 
 
 def get_greeting():

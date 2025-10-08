@@ -10,9 +10,10 @@ from utils import (
     get_greeting,
     check_public_holiday,
     get_daily_events,
+    string_replacements,
 )
 
-time.sleep(10)
+time.sleep(10)  # Wait for API to be ready
 
 with open("config.json", "r") as file:
     config = json.load(file)
@@ -25,68 +26,20 @@ calendar = Calendar(
 )
 season = Season()
 
-# Get current time and date
-greeting_stage, formatted_date = get_greeting()
-
-# Get Calendar Events
-all_day_events, timed_events = calendar.get_calendar_events()
-
-# Get Weather
-
-# Current conditions
-current_temperature, conditions = weather.get_current_conditions()
-wind_speed, wind_direction = weather.get_wind()
-
-# Forecast
-temperature_forecast = weather.get_temperature_forecast()
-sunrise, sunset, hours_of_day = weather.get_sunset_hours()
-rain_forecast = weather.get_rain_prediction()
-
-# Season progress
-season_progress = season.get_season_progress()
-
-# Other events
-hourly_events = get_daily_events()
-
-# Public holidays
-public_holiday = check_public_holiday()
-
 # Output
-announcement = (
-    f"""
+announcement = f"""
+Good {get_greeting()[0]}.
+It is {get_greeting()[1]}.
+{season.season_progress}. {check_public_holiday()}.
+{weather.sunrise}.
+It is {weather.current_temperature}.
+Currently {weather.conditions} with {weather.wind_speed} from the {weather.wind_direction}.
+{weather.rain_forecast}.
+{weather.temperature_forecast}.
+{calendar.all_day_events}.
+{calendar.timed_events}.
+Sunset will be at {weather.sunset} for {weather.hours_of_day} of daylight.
+{get_daily_events()}.
+"""
 
-    Good {greeting_stage}.
-    It is {formatted_date}.
-    {season_progress}. {public_holiday}.
-    {sunrise}.
-    It is {current_temperature}.
-    Currently {conditions} with {wind_speed} from the {wind_direction}.
-    {rain_forecast}.
-    {temperature_forecast}.
-    {all_day_events}.
-    {timed_events}.
-    Sunset will be at {sunset} for {hours_of_day} of daylight.
-    {hourly_events}.
-
-""".replace(
-        "    ",
-        "",  # left padding
-    )
-    .replace("minus", "negative")
-    .replace(
-        "\n.",
-        "",  # blank lines with '.'s
-    )
-    .replace(
-        " .",
-        "",  # double '.'s
-    )
-    .replace(
-        "'",
-        "",  # remove things that might break the shell script "'"
-    )
-    .lstrip()
-    .rstrip()
-)  # lines at start and end
-
-print(announcement)
+print(string_replacements(announcement))
