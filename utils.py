@@ -1,5 +1,5 @@
 from __future__ import print_function
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 from dateutil import parser
 import os
 import re
@@ -23,6 +23,7 @@ now = (
 )
 
 LAST_RUN_FILE = "./last_run_date.txt"
+
 
 class Calendar:
     def __init__(
@@ -383,6 +384,11 @@ class Weather:
         sunrise_today = sunrise_time.replace(
             year=now.year, month=now.month, day=now.day, tzinfo=self.timezone
         )
+
+        # use daylight saving if needed
+        sunrise_today = sunrise_today.replace(tzinfo=None)
+        sunrise_today = self.timezone.localize(sunrise_today)
+
         if (
             sunrise_today.time() > now.time()
         ):  # sunrise has yet to happen - use time as year is not set
@@ -631,6 +637,7 @@ def day_stage():
     else:
         day_stage = "evening"
     return day_stage
+
 
 def time_and_date():
     hour = num2words(now.strftime("%I"), lang="en")
