@@ -385,7 +385,7 @@ class Weather:
             year=now.year, month=now.month, day=now.day, tzinfo=self.timezone
         )
 
-        # use daylight saving if needed
+        # Normalize to our timezone
         sunrise_today = sunrise_today.replace(tzinfo=None)
         sunrise_today = self.timezone.localize(sunrise_today)
 
