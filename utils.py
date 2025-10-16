@@ -125,6 +125,33 @@ class Calendar:
         )
         events = events_result.get("items", [])
 
+        """ Special case for birthdays in contacts calendar - only check once a day
+        if account == "sacha@sachawheeler.com":
+            # Calculate yesterday, today, tomorrow (UTC)
+            now = datetime.utcnow()
+            yesterday = now - timedelta(days=1)
+            tomorrow = now + timedelta(days=1)
+
+            timeMin = yesterday.isoformat() + 'Z'
+            timeMax = tomorrow.isoformat() + 'Z'
+
+            calendar_id = 'addressbook#contacts@group.v.calendar.google.com'
+
+            birthday_events_result = service.events().list(
+                calendarId=calendar_id,
+                timeMin=timeMin,
+                timeMax=timeMax,
+                singleEvents=True,
+                orderBy='startTime'
+            ).execute()
+            print(account, birthday_events_result)
+
+            birthday_events = birthday_events_result.get('items', [])
+
+            for event in birthday_events:
+                print(f"{event['summary']} - {event['start'].get('date', event['start'].get('dateTime'))}")
+        """
+
         if not events:
             return None
         upcoming_events = {}
