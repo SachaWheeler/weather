@@ -9,7 +9,7 @@ USER='happy'
 announcement=$(python3 /work/weather/weather.py)
 # echo "$announcement"
 
-ssh $USER@$HOST<<END_SSH
+ssh -T $USER@$HOST<<END_SSH
         say -v Fiona '$announcement'
 END_SSH
 
