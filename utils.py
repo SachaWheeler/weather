@@ -506,7 +506,7 @@ class Season:
                 current_start = (
                     seasons[current_season]
                     if i > 0
-                    else self.season_dates(year - 1)["Winter"]
+                    else self.get_season_dates(year - 1)["Winter"]
                 )
                 next_season = season
                 next_start = seasons[next_season]
@@ -515,7 +515,7 @@ class Season:
             current_season = "Winter"
             current_start = seasons["Winter"]
             next_season = "Spring"
-            next_start = self.season_dates(year + 1)["Spring"]
+            next_start = self.get_season_dates(year + 1)["Spring"]
 
         return current_season, current_start, next_season, next_start
 
