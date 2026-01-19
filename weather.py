@@ -20,12 +20,16 @@ with open("config.json", "r") as file:
     config = json.load(file)
 
 # Initialize Weather and Calendar with configuration
-weather = Weather(location=config["weather_location"], timezone=config["timezone"])
-calendar = Calendar(
-    calendar_accounts=config["CALENDAR_ACCT_CREDENTIALS"],
-    timezone=config["timezone"],
-)
-season = Season()
+try:
+    weather = Weather(location=config["weather_location"], timezone=config["timezone"])
+    calendar = Calendar(
+        calendar_accounts=config["CALENDAR_ACCT_CREDENTIALS"],
+        timezone=config["timezone"],
+    )
+    season = Season()
+except Exception as e:
+    print(f"Error failed to fetch weather data: {e}")
+    exit(1)
 
 # Output
 announcement = f"""
