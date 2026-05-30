@@ -1,6 +1,6 @@
 {
     "CALENDAR_ACCT_CREDENTIALS": {
-        "sacha@jftwines.com": "bibo-calendar_creds.json",
+        "sacha@jftwines.com": "jft-calendar_creds.json",
         "sacha@sachawheeler.com": "sacha-calendar_creds.json"
     },
     "weather_location": "London",

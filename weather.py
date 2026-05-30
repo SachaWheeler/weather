@@ -14,7 +14,7 @@ from utils import (
     string_replacements,
 )
 
-time.sleep(10)  # Wait for API to be ready
+time.sleep(20)  # Wait for API to be ready
 
 with open("config.json", "r") as file:
     config = json.load(file)
@@ -22,14 +22,20 @@ with open("config.json", "r") as file:
 # Initialize Weather and Calendar with configuration
 try:
     weather = Weather(location=config["weather_location"], timezone=config["timezone"])
+except Exception as e:
+    print(f"Error failed to fetch weather data")
+    # print(e)
+    exit(1)
+try:
     calendar = Calendar(
         calendar_accounts=config["CALENDAR_ACCT_CREDENTIALS"],
         timezone=config["timezone"],
     )
-    season = Season()
 except Exception as e:
-    print(f"Error failed to fetch weather data: {e}")
+    print(f"Error failed to fetch calendar data: {e}")
     exit(1)
+
+season = Season()
 
 # Output
 announcement = f"""

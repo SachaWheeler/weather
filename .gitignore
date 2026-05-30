@@ -12,3 +12,4 @@ test_output.txt
 calendar.txt
 weather_cache.json
 calendar_cache.json
+jft-calendar_creds.json
